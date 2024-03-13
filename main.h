@@ -8,10 +8,15 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <thd_cntr.h>
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"
 #include "utils.h"
 #include "display_u8g2.h"
+#include "ADF4156.h"
+
+//extern BaseSequentialStream* bsp2;
+int myprintf(const char *fmt, ...);
 
 #endif /* MAIN_H_ */

@@ -140,7 +140,7 @@
 /*
  * DAC driver system settings.
  */
-#define STM32_DAC_USE_DAC1_CH1              FALSE
+#define STM32_DAC_USE_DAC1_CH1              TRUE
 #define STM32_DAC_DAC1_CH1_IRQ_PRIORITY     10
 #define STM32_DAC_DAC1_CH1_DMA_PRIORITY     2
 #define STM32_DAC_DAC1_CH1_DMA_STREAM       STM32_DMA_STREAM_ID(1, 5)
@@ -179,7 +179,7 @@
  * I2S driver system settings.
  */
 #define STM32_I2S_USE_SPI1                  FALSE
-#define STM32_I2S_USE_SPI2                  FALSE
+#define STM32_I2S_USE_SPI2                  FALSE //TRUE
 #define STM32_I2S_USE_SPI5                  FALSE
 #define STM32_I2S_SPI1_IRQ_PRIORITY         10
 #define STM32_I2S_SPI2_IRQ_PRIORITY         10
@@ -222,14 +222,14 @@
 /*
  * SERIAL driver system settings.
  */
-#define STM32_SERIAL_USE_USART1             FALSE
+#define STM32_SERIAL_USE_USART1             TRUE
 #define STM32_SERIAL_USE_USART2             TRUE
 #define STM32_SERIAL_USE_USART6             FALSE
 
 /*
  * SPI driver system settings.
  */
-#define STM32_SPI_USE_SPI1                  TRUE
+#define STM32_SPI_USE_SPI1                  FALSE
 #define STM32_SPI_USE_SPI2                  TRUE
 #define STM32_SPI_USE_SPI5                  FALSE
 #define STM32_SPI_SPI1_RX_DMA_STREAM        STM32_DMA_STREAM_ID(2, 0)

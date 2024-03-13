@@ -69,31 +69,72 @@ Q Ratio on VBAT measurement 4
 #include "utils.h"
 #include "main.h"
 
+#define ADC_BINS 4096
+#define ADC_V_MAX 3.3
 
-extern BaseSequentialStream* bsp;
+extern BaseSequentialStream* bsp2;
+
+void dac_init(void);
 
 
-uint32_t rseed = 2804628253;  // 100% random seed value
+static const DACConfig dac_config = {
+  .init         = DAC_TEMP_MIN,
+  .datamode     = DAC_DHRM_12BIT_RIGHT,
+  .cr           = 0
+};
+
+void dac_init(void){
+  palSetPadMode(GPIOA, 5, PAL_MODE_INPUT_ANALOG);
+  dacStart(&DACD1, &dac_config);
+  //test dacPutChannelX(&DACD1, 0, DAC_TEMP_1);
+}
+
+void heater_setTempDegC(float t){
+  float v = (1.567 - t*0.0083)*2; //LMT85: 0°C 1.567V, -8.3mV/deg 0-100°C. div2 on board
+  dacPutChannelX(&DACD1, 0, v*ADC_BINS/ADC_V_MAX);
+}
+
+void heater_init(void){
+
+  dac_init();
+  heater_setTempDegC(0.0);
+  chThdSleepMilliseconds(100); //wait for opamp input to settle
+  //dac value MUST be set to low temperature before heater is enabled
+  //To ensure soft start and no current limit overshoot
+  palSetPad(GPIOA, GPIOA_heater_enable);
+}
+
+void heater_disable(void){
+  palClearPad(GPIOA, GPIOA_heater_enable);
+}
+
+void piezo_toggle(void){
+  palTogglePad(GPIOC, GPIOC_PIEZO_A);
+  palTogglePad(GPIOC, GPIOC_PIEZO_B);
+}
+
+
+float lmt85_volt_to_temp_deg_c(float v){
+  return (v-1.567)*-120.48; //LMT85: 0°C 1.567V, -8.3mV/deg 0-100°C. div2 on board
+}
 
 
 #define TEMPSENSOR_CAL1_ADDR     ((uint16_t*) (0x1FFF7A2C)) //30°
 #define TEMPSENSOR_CAL2_ADDR     ((uint16_t*) (0x1FFF7A2E)) //110°
 
 
-#define MY_NUM_CH   1
-#define MY_SAMPLES 10
-
-
-static adcsample_t adc_buf[MY_NUM_CH * MY_SAMPLES];
-
 /*
  * ADC conversion group.
  * Mode:        Linear buffer, 10 samples of 1 channel, SW triggered.
  * Channels:    temp sensor.
  */
-static const ADCConversionGroup adc_conv_grp_temp = {
+#define ADC_TEMP_INT_NUM_CH   1
+#define ADC_TEMP_INT_N 10
+static adcsample_t adc_buf_temp_int[ADC_TEMP_INT_NUM_CH * ADC_TEMP_INT_N];
+
+static const ADCConversionGroup adc_conv_grp_temp_int = {
   FALSE,                            /*NOT CIRCULAR*/
-  MY_NUM_CH,                        /*NUMB OF CH*/
+  ADC_TEMP_INT_NUM_CH,                        /*NUMB OF CH*/
   NULL,                             /*NO ADC CALLBACK*/
   NULL,                             /*NO ADC ERROR CALLBACK*/
   0,                                /* CR1 */
@@ -102,49 +143,138 @@ static const ADCConversionGroup adc_conv_grp_temp = {
   0,                                /* SMPR2 */
   0,                                /* HTR */
   0,                                /* LTR */
-  ADC_SQR1_NUM_CH(MY_NUM_CH),       /* SQR1 */
+  ADC_SQR1_NUM_CH(ADC_TEMP_INT_NUM_CH),       /* SQR1 */
   0,                                /* SQR2 */
   ADC_SQR3_SQ1_N (ADC_CHANNEL_SENSOR)/* SQR3 */
 };
 
-float get_temp_internal(void){
+float adc_get_temp_internal(void){
 
   adcStart(&ADCD1, NULL);
   adcSTM32EnableTSVREFE();
-  adcConvert(&ADCD1, &adc_conv_grp_temp, adc_buf, MY_SAMPLES); //dumy for config
+  adcConvert(&ADCD1, &adc_conv_grp_temp_int, adc_buf_temp_int, ADC_TEMP_INT_N); //dumy for config
   chThdSleepMilliseconds(1); //wait for temp sens startup
 
-  adcConvert(&ADCD1, &adc_conv_grp_temp, adc_buf, MY_SAMPLES);
+  adcConvert(&ADCD1, &adc_conv_grp_temp_int, adc_buf_temp_int, ADC_TEMP_INT_N);
   adcSTM32DisableTSVREFE();
 
   uint32_t mean = 0;
-  for(uint16_t i=0; i<MY_SAMPLES; ++i){
-    //chprintf(bsp, "sample %d = %d\n", i, adc_buf[i]);
-    mean += adc_buf[i];
+  for(uint16_t n=0; n<ADC_TEMP_INT_N; ++n){
+    //chprintf(bsp2, "sample %d = %d\n", i, adc_buf_temp_int[i]);
+    mean += adc_buf_temp_int[n];
   }
 
-  float t = (float)mean/(float)MY_SAMPLES;
-  chprintf(bsp,"mean = %f\n", t);
+  float t = (float)mean/(float)ADC_TEMP_INT_N;
+  //chprintf(bsp2,"mean = %f\n", t);
 
   float cal30 = *TEMPSENSOR_CAL1_ADDR;
   float cal110 = *TEMPSENSOR_CAL2_ADDR;
-  //chprintf(bsp,"cal30 = %f, cal110 = %f\n", cal30, cal110);
+  //chprintf(bsp2,"cal30 = %f, cal110 = %f\n", cal30, cal110);
 
 
   float slope = (cal110-cal30)/80.0;
-  chprintf(bsp,"slope = %f [counts], %f [mv/deg]\n", slope, slope*3300/4096.0);
+  //chprintf(bsp2,"slope = %f [counts], %f [mv/deg]\n", slope, slope*3300/ADC_BINS);
 
   float temp = (t - cal30) / slope + 30.0;
-  chprintf(bsp,"temp = %f\n", temp);
+  //chprintf(bsp2,"temp = %f\n", temp);
 
   //TODO calibrate ADC full scale with vrefint
   //VREFIN_CAL, Raw data acquired at temperature of, 30 °C VDDA = 3.3 V, 0x1FFF 7A2A - 0x1FFF 7A2B
   return temp;
 }
 
+/*
+ * ADC conversion group.
+ * Mode:        Linear buffer, 10 samples of 1 channel, SW triggered.
+ * Channels:    temp sensor.
+ */
+#define ADC_TEMP_HEAT_NUM_CH   1
+#define ADC_TEMP_HEAT_N 100
+static adcsample_t adc_buf_temp_heat[ADC_TEMP_HEAT_NUM_CH * ADC_TEMP_HEAT_N];
+
+static const ADCConversionGroup adc_conv_grp_temp_heat = {
+  FALSE,                            /*NOT CIRCULAR*/
+  ADC_TEMP_HEAT_NUM_CH,                        /*NUMB OF CH*/
+  NULL,                             /*NO ADC CALLBACK*/
+  NULL,                             /*NO ADC ERROR CALLBACK*/
+  0,                                /* CR1 */
+  ADC_CR2_SWSTART,                  /* CR2 soft trigger*/
+  ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144), /* SMPR1 144cycles*/
+  0,                                /* SMPR2 */
+  0,                                /* HTR */
+  0,                                /* LTR */
+  ADC_SQR1_NUM_CH(ADC_TEMP_HEAT_NUM_CH),       /* SQR1 */
+  0,                                /* SQR2 */
+  ADC_SQR3_SQ1_N (ADC_CHANNEL_IN12)/* SQR3 */
+};
+
+float adc_get_temp_heater(void){
+
+  adcStart(&ADCD1, NULL);
+  adcConvert(&ADCD1, &adc_conv_grp_temp_heat, adc_buf_temp_heat, ADC_TEMP_HEAT_N); //dumy for config
+
+  adcConvert(&ADCD1, &adc_conv_grp_temp_heat, adc_buf_temp_heat, ADC_TEMP_HEAT_N);
+
+  uint32_t mean = 0;
+  for(uint16_t n=0; n<ADC_TEMP_HEAT_N; ++n){
+    mean += adc_buf_temp_heat[n];
+  }
+  float v = (((float)mean) * ADC_V_MAX / ADC_BINS) / ADC_TEMP_HEAT_N;
+
+  //TODO calibrate ADC full scale with vrefint
+  //VREFIN_CAL, Raw data acquired at temperature of, 30 °C VDDA = 3.3 V, 0x1FFF 7A2A - 0x1FFF 7A2B
+  return lmt85_volt_to_temp_deg_c(v);
+}
+
+/*
+ * ADC conversion group.
+ * Mode:        Linear buffer, 10 samples of 1 channel, SW triggered.
+ * Channels:    temp sensor.
+ */
+#define ADC_CURRENT_NUM_CH   1
+#define ADC_CURRENT_N 10
+static adcsample_t adc_buf_current[ADC_CURRENT_NUM_CH * ADC_CURRENT_N];
+
+static const ADCConversionGroup adc_conv_grp_current = {
+  FALSE,                            /*NOT CIRCULAR*/
+  ADC_CURRENT_NUM_CH,                        /*NUMB OF CH*/
+  NULL,                             /*NO ADC CALLBACK*/
+  NULL,                             /*NO ADC ERROR CALLBACK*/
+  0,                                /* CR1 */
+  ADC_CR2_SWSTART,                  /* CR2 soft trigger*/
+  ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144), /* SMPR1 144cycles*/
+  0,                                /* SMPR2 */
+  0,                                /* HTR */
+  0,                                /* LTR */
+  ADC_SQR1_NUM_CH(ADC_CURRENT_NUM_CH),       /* SQR1 */
+  0,                                /* SQR2 */
+  ADC_SQR3_SQ1_N (ADC_CHANNEL_IN7)/* SQR3 */
+};
+
+float adc_get_current(void){
+
+  adcStart(&ADCD1, NULL);
+  adcConvert(&ADCD1, &adc_conv_grp_current, adc_buf_current, ADC_CURRENT_N); //dumy for config
+
+  adcConvert(&ADCD1, &adc_conv_grp_current, adc_buf_current, ADC_CURRENT_N);
+
+  uint32_t mean = 0;
+  for(uint16_t n=0; n<ADC_CURRENT_N; ++n){
+    mean += adc_buf_current[n];
+  }
+
+  float v = (float)mean/(float)ADC_CURRENT_N;
+  v = v*ADC_V_MAX/ADC_BINS;
+
+  //TODO calibrate ADC full scale with vrefint
+  //VREFIN_CAL, Raw data acquired at temperature of, 30 °C VDDA = 3.3 V, 0x1FFF 7A2A - 0x1FFF 7A2B
+  return v;
+}
+
 //https://excamera.com/sphinx/article-xorshift.html
 uint32_t rand32(void)
 {
+  static uint32_t rseed = 2804628253;  // 100% random seed value
   rseed ^= rseed << 13;
   rseed ^= rseed >> 17;
   rseed ^= rseed << 5;
@@ -156,4 +286,23 @@ float randf(){
     return rand32()/(float)4294967295.0;
 }
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

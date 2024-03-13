@@ -69,9 +69,11 @@ uint8_t u8x8_byte_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
   return 1;
 }
 
-#warning todo adapt to I2C2 pins
+//#warning todo adapt to I2C2 pins
 uint8_t u8x8_gpio_and_delay_stm32(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
+  (void)arg_ptr; //to remove unused parameter warning
+
   switch(msg)
   {
   case U8X8_MSG_GPIO_AND_DELAY_INIT:
@@ -160,12 +162,12 @@ void disp_rule90(void){
   a[3] = rand32();
 
   u8g2_ClearBuffer(u8g2);
-  for(uint32_t i = 0; i<128; ++i){
-    if(a[i>>5] & 1<<(i%32)){
-      u8g2_DrawPixel(u8g2, i, 0);
-    }
-  }
-  u8g2_SendBuffer(u8g2);
+//  for(uint32_t i = 0; i<128; ++i){
+//    if(a[i>>5] & 1<<(i%32)){
+//      u8g2_DrawPixel(u8g2, i, 0);
+//    }
+//  }
+//  u8g2_SendBuffer(u8g2);
 
 
 
@@ -209,22 +211,31 @@ int display_init (void){
   u8g2_SendBuffer(u8g2);
 
   u8g2_ClearBuffer(u8g2);
-  //u8g2_SetFont(u8g2, u8g2_font_helvR12_tr);
-  u8g2_SetFont(u8g2, u8g2_font_helvB12_tr);
-  u8g2_DrawStr(u8g2, 0,30, "1010000000.000");
+  u8g2_SetFont(u8g2, u8g2_font_helvR12_tr);
+  u8g2_DrawStr(u8g2, 0,30, "1010000,00.000");
 
+  u8g2_SetFont(u8g2, u8g2_font_helvB10_tr);
+  u8g2_DrawStr(u8g2, 0,50, "1'234'561'000.012");
 
-  u8g2_DrawStr(u8g2, 0,50, "1010000000.000");
+  u8g2_SetFont(u8g2, u8g2_font_5x7_tf);
+  u8g2_DrawStr(u8g2, 120,50, "Hz");
+
   u8g2_SendBuffer(u8g2);
 
 
-  char buf[12];
-  for(int i = 0; i<1000000000; ++i){
-    chsnprintf(buf, 12, "%10d", i);
-    u8g2_ClearBuffer(u8g2);
-    u8g2_DrawStr(u8g2, 0,50, buf);
-    u8g2_SendBuffer(u8g2);
-  }
+//  char buf[12];
+//  for(int i = 0; i<20; ++i){
+//    chsnprintf(buf, 12, "%10d", i);
+//    u8g2_ClearBuffer(u8g2);
+//    u8g2_DrawStr(u8g2, 0,50, buf);
+//    u8g2_SendBuffer(u8g2);
+//  }
+//
+//  for(int i = 0; i<20; ++i){
+//    disp_rule90();
+//  }
+
+
   //
   //  //working
   //  chThdSleepMilliseconds(250);
@@ -240,4 +251,18 @@ int display_init (void){
 
   return global;
 }
+
+void ThdDispFunc(void) {
+  myprintf("ThdDisp\n");
+
+  int temp = display_init();
+  myprintf("display initialized (move to separate disp thread) \n");
+  myprintf("I2C_addr = %d\n", temp);
+  myprintf("I2C_addr = 0x%x\n", temp);
+
+  while(true){
+    chThdSleepMilliseconds(100);
+  }
+}
+
 
