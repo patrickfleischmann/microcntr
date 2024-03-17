@@ -150,9 +150,9 @@
  */
 #define STM32_GPT_USE_TIM1                  FALSE
 #define STM32_GPT_USE_TIM5                  FALSE
-#define STM32_GPT_USE_TIM6                  FALSE
+#define STM32_GPT_USE_TIM6                  TRUE
 #define STM32_GPT_USE_TIM9                  FALSE
-#define STM32_GPT_USE_TIM11                 TRUE
+#define STM32_GPT_USE_TIM11                 FALSE
 
 /*
  * I2C driver system settings.
@@ -250,7 +250,7 @@
  * ST driver system settings.
  */
 #define STM32_ST_IRQ_PRIORITY               8
-#define STM32_ST_USE_TIMER                  5
+#define STM32_ST_USE_TIMER                  11 //was 5, but i need TIM5, TIM11, TIM9
 
 /*
  * UART driver system settings.

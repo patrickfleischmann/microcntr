@@ -39,7 +39,11 @@ include $(CHIBIOS)/os/hal/ports/STM32/LLD/TIMv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/USARTv1/driver.mk
 include $(CHIBIOS)/os/hal/ports/STM32/LLD/xWDGv1/driver.mk
 
-
+CHibios was using tim5 STM32_ST_USE_TIMER = 5
+i need tim 5
+switching to tim11
+but display was using tim11
+trying to use tim6 for display
 
  */
 
@@ -260,7 +264,7 @@ int main(void) {
   chThdCreateStatic(waThdBeeper, sizeof(waThdBeeper), NORMALPRIO, ThdBeeper, NULL);
   chThdCreateStatic(waThdGNSS, sizeof(waThdGNSS), NORMALPRIO, ThdGNSS, NULL);
   chThdCreateStatic(waThdCntr, sizeof(waThdCntr), NORMALPRIO, ThdCntr, NULL);
-  chThdCreateStatic(waThdDisp, sizeof(waThdDisp), NORMALPRIO, ThdDisp, NULL);
+  //chThdCreateStatic(waThdDisp, sizeof(waThdDisp), NORMALPRIO, ThdDisp, NULL);
 
 
 

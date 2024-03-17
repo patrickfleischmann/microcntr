@@ -10,6 +10,9 @@
 
 #include <stdint.h>
 
-void adf_config(uint32_t div_n, uint32_t div_r, uint8_t testmode);
+void adf_config_div_n(uint32_t div_n);
+void adf_config_div_r(uint32_t div_r);
+void adf_config_testmode_muxout_low(void);
+void adf_config_testmode_muxout_high(void);
 
 #endif /* SOURCE_ADF4156_H_ */

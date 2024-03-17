@@ -59,7 +59,7 @@ void adf_write_reg(uint32_t data){
 
   palClearPad(GPIOB, GPIOB_ADF_DATA);
   palClearPad(GPIOB, GPIOB_ADF_CLK);
-  myprintf("Bitbang adf_write_reg: 0x%08X\n", data);
+  //myprintf("Bitbang adf_write_reg: 0x%08X\n", data);
   palClearPad(GPIOB, GPIOB_ADF_LE);           // Slave Select assertion.
    for(int i=3; i>=0; --i){
      uint8_t temp = data >> (i * 8);
@@ -198,3 +198,20 @@ void adf_config(uint32_t div_n, uint32_t div_r, uint8_t testmode) {
                                      PIN_AFIO_AF(GPIOB_ADF_DATA, 5U))
    */
 }
+
+void adf_config_div_n(uint32_t div_n) {
+  adf_config(div_n, 0, 0);
+}
+
+void adf_config_div_r(uint32_t div_r) {
+  adf_config(0, div_r, 0);
+}
+
+void adf_config_testmode_muxout_low(void) {
+  adf_config(1, 1, 2);
+}
+
+void adf_config_testmode_muxout_high(void) {
+  adf_config(1, 1, 1);
+}
+

@@ -9,6 +9,7 @@
 #define MAIN_H_
 
 #include <thd_cntr.h>
+#include <timers.h>
 #include "ch.h"
 #include "hal.h"
 #include "chprintf.h"

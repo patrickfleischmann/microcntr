@@ -14,7 +14,7 @@ uint8_t u8g2_x, u8g2_y;         // current position on the screen
 
 int global;
 
-static const GPTConfig gpt11cfg = {
+static const GPTConfig gpt6cfg = { //was gpt11
                                    2000000,
                                    NULL,
                                    0,
@@ -100,9 +100,9 @@ uint8_t u8x8_gpio_and_delay_stm32(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, vo
     /* arg_int is 1 or 4: 100KHz (5us) or 400KHz (1.25us) */
 
     if(arg_int == 1){
-      gptPolledDelay(&GPTD11, 10);
+      gptPolledDelay(&GPTD6, 10);
     } else {
-      gptPolledDelay(&GPTD11, 2);
+      gptPolledDelay(&GPTD6, 2);
       //#warning gptPolledDelay didn't work with 1MHz, 1tick wait (1tick -> 0tick)
     }
     break;
@@ -193,7 +193,7 @@ void disp_rule90(void){
 }
 
 int display_init (void){
-  gptStart(&GPTD11, &gpt11cfg);
+  gptStart(&GPTD6, &gpt6cfg);
 
 
   //working with os asserts disabled
@@ -259,7 +259,6 @@ void ThdDispFunc(void) {
   myprintf("display initialized (move to separate disp thread) \n");
   myprintf("I2C_addr = %d\n", temp);
   myprintf("I2C_addr = 0x%x\n", temp);
-
   while(true){
     chThdSleepMilliseconds(100);
   }
