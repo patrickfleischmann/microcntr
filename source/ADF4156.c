@@ -87,7 +87,7 @@ void adf_write_reg(uint32_t data){
      chThdSleepMilliseconds(1);
      palClearPad(GPIOB, GPIOB_ADF_CLK);
 
-     if(temp&0x20)  palSetPad(GPIOB, GPIOB_ADF_DATA);
+     if(temp&0x10)  palSetPad(GPIOB, GPIOB_ADF_DATA);
      else           palClearPad(GPIOB, GPIOB_ADF_DATA);
      chThdSleepMilliseconds(1);
      palSetPad(GPIOB, GPIOB_ADF_CLK);
@@ -199,19 +199,12 @@ void adf_config(uint32_t div_n, uint32_t div_r, uint8_t testmode) {
    */
 }
 
-void adf_config_div_n(uint32_t div_n) {
-  adf_config(div_n, 0, 0);
+void adf_config_spi_test(void) {
+  adf_write_reg(0xAAAAAAAA);
 }
 
-void adf_config_div_r(uint32_t div_r) {
-  adf_config(0, div_r, 0);
-}
-
-void adf_config_testmode_muxout_low(void) {
-  adf_config(1, 1, 2);
-}
-
-void adf_config_testmode_muxout_high(void) {
-  adf_config(1, 1, 1);
-}
+void adf_config_div_n(uint32_t div_n) { adf_config(div_n, 0, 0);}
+void adf_config_div_r(uint32_t div_r) { adf_config(0, div_r, 0);}
+void adf_config_testmode_muxout_low(void) { adf_config(1, 1, 2);}
+void adf_config_testmode_muxout_high(void) { adf_config(1, 1, 1);}
 

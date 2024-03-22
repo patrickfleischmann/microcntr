@@ -45,6 +45,10 @@ switching to tim11
 but display was using tim11
 trying to use tim6 for display
 
+setting alternate functions in board.h sometimes does not seem to work
+using palSetPadMode works. for example:
+palSetPadMode(GPIOA, GPIOA_CNT_IN, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT);
+
  */
 
 

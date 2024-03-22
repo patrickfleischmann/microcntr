@@ -12,12 +12,12 @@ void basic_timer_setup(TIM_TypeDef *TMR);
 //adapted from AN4776
 //32bit counter, running at 100MHz
 void TIM5_init(void){
-#warning debug
+  palSetPadMode(GPIOA, GPIOA_CNT_IN, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT); //setting alternate function in board.h didn't work
   SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM5EN); //enable peripheral clock (should be handled by mcuconf in chibi hal system)
 
   TIM5->CR2 = 0; //defaults
 
-  TIM5->SMCR = RESET; // Reset the SMCR register
+  TIM5->SMCR = 0; // Reset the SMCR register
 
   TIM5->ARR = 0xFFFFFFFF; //auto reload (period) set to max
 
@@ -36,6 +36,8 @@ void TIM5_init(void){
 
   TIM5->CR1 = 0;//upcounter, continuous
   TIM5->CR1 |= TIM_CR1_CEN; //enable
+
+  TIM5->SR = ~TIM_SR_CC1IF; //Clear event flag
 
 
 }

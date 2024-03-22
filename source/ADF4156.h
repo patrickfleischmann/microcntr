@@ -14,5 +14,6 @@ void adf_config_div_n(uint32_t div_n);
 void adf_config_div_r(uint32_t div_r);
 void adf_config_testmode_muxout_low(void);
 void adf_config_testmode_muxout_high(void);
+void adf_config_spi_test(void);
 
 #endif /* SOURCE_ADF4156_H_ */
