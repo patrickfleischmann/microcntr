@@ -7,7 +7,7 @@
 /*===========================================================================*/
 
 /*
- * Setup for STMicroelectronics STM32 Nucleo64-F410RB board.
+ * Setup for microcntr (STM32F410RB) board.
  */
 
 /*
@@ -18,23 +18,23 @@
 
 /*
  * Board oscillators-related settings.
- * NOTE: LSE not fitted.
+ * NOTE: .
  */
-#if !defined(STM32_LSECLK)
-#define STM32_LSECLK                0U
-#endif
+#define STM32_LSECLK        0U         //LSE not fitted
+#define STM32_HSECLK        50000000U  //Configure GPIOs to enable ext 50M clock!
+#define STM32_HSE_BYPASS               //external clock mode
 
-#if !defined(STM32_HSECLK)
-#define STM32_HSECLK                8000000U
-#endif
-
-#define STM32_HSE_BYPASS
+//Settings to provide 50MHz clock:
+//REF_INT_EN = 1
+//REF_INT_SEL = 0
+//PSHIFT0 = 1
+//PSHIFT1 = 1 //any combination of PHSHIFT0 and PHSHIFT1 except 00 allowed
 
 /*
  * Board voltages.
  * Required for performance limits calculation.
  */
-#define STM32_VDD                   300U
+#define STM32_VDD                   330U
 
 /*
  * MCU type as defined in the ST header.
@@ -428,7 +428,7 @@
                                      PIN_ODR_LOW(GPIOB_PIN2) |             \
                                      PIN_ODR_LOW(GPIOB_SWO) |              \
                                      PIN_ODR_LOW(GPIOB_CAL_SOUR_SEL) |           \
-                                     PIN_ODR_LOW(GPIOB_REF_INT_EN) |           \
+                                     PIN_ODR_HIGH(GPIOB_REF_INT_EN) |           \
                                      PIN_ODR_LOW(GPIOB_PIN6) |          \
                                      PIN_ODR_LOW(GPIOB_PIN7) |             \
                                      PIN_ODR_LOW(GPIOB_PIN8) |          \
