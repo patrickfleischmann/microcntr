@@ -28,7 +28,7 @@
 //REF_INT_EN = 1
 //REF_INT_SEL = 0
 //PSHIFT0 = 1
-//PSHIFT1 = 1 //any combination of PHSHIFT0 and PHSHIFT1 except 00 allowed
+//PSHIFT1 = 0 //any combination of PSHIFT0 and PSHIFT1 except 00 allowed, 10 -> ca 50% duty-cycle
 
 /*
  * Board voltages.
@@ -525,7 +525,7 @@
                                      PIN_PUPDR_FLOATING(GPIOC_LED2) |   \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN15))
 #define VAL_GPIOC_ODR               (PIN_ODR_LOW(GPIOC_PIN0) |           \
-                                     PIN_ODR_HIGH(GPIOC_PSHIFT1) |           \
+                                     PIN_ODR_LOW(GPIOC_PSHIFT1) |           \
                                      PIN_ODR_LOW(GPIOC_ADC_HEAT) |             \
                                      PIN_ODR_LOW(GPIOC_PIN3) |             \
                                      PIN_ODR_LOW(GPIOC_PIN4) |             \

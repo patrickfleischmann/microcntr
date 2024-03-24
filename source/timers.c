@@ -31,7 +31,9 @@ void TIM5_init(void){
   TIM5->CCMR1 |= TIM_CCMR1_CC1S_0; //CC1 channel is configured as input, IC1 is mapped on TI1
                                    //CC1S bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER).
 
-  TIM5->CCER |= TIM_CCER_CC1P; //Circuit is sensitive to TIxFP1 falling edge (capture..
+
+  //(TIM5->CCER |= TIM_CCER_CC1P; //Circuit is sensitive to TIxFP1 falling edge (capture..)
+  //CC1P = 0 -> //Circuit is sensitive to TIxFP1 rising edge (capture..
   TIM5->CCER |= TIM_CCER_CC1E; //CC1 enabled
 
   TIM5->CR1 = 0;//upcounter, continuous

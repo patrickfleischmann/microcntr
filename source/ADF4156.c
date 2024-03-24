@@ -130,9 +130,8 @@ void adf_write_reg(uint32_t data){
 //div = 2,4,..,8190
 //r = 1,2,..,32 (*2 = 2,4,..64)
 //n = 23,24,..,4095 (*2 = 46,48,..,8190)
-//if div > 64, n
 //muxout/2 is used except when r = 1
-//if r = 0: n divider is used (should be usable > 10 MHz)
+//if r = 0: n divider is used (should be usable above 10 MHz input)
 //testmode = 1: muxout high, testmode = 2: muxout low
 
 void adf_config(uint32_t div_n, uint32_t div_r, uint8_t testmode) {
