@@ -54,6 +54,7 @@ palSetPadMode(GPIOA, GPIOA_CNT_IN, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT);
 
 
 #include "main.h"
+#include <stdio.h>
 
 BaseSequentialStream* bsp2 = (BaseSequentialStream*)&SD2;
 BaseSequentialStream* bsp1 = (BaseSequentialStream*)&SD1;
@@ -84,7 +85,7 @@ static THD_FUNCTION(ThdSerial, arg) {
   chRegSetThreadName("Serial manager");
   static const SerialConfig my_config =
   {
-   115200,
+   230400,
    0,
    USART_CR2_STOP1_BITS,
    0
@@ -95,19 +96,19 @@ static THD_FUNCTION(ThdSerial, arg) {
 
   while(true) {
 
-    /*
+
     // Getting data from Serial Driver with a timeout.
     msg_t tkn = sdGetTimeout(&SD2, TIME_MS2I(100));
     // Checking if a timeout has occurred.
     if(tkn != MSG_TIMEOUT)
       sdPut(&SD1, tkn);    // Not a timeout-> forward to GNSS
-    }
-    */
+  }
 
 
-   // myprintf(bsp2, "%.3f %.3f %.3f\n\r", adc_get_temp_internal(), adc_get_temp_heater(), adc_get_current());
 
+  // myprintf(bsp2, "%.3f %.3f %.3f\n\r", adc_get_temp_internal(), adc_get_temp_heater(), adc_get_current());
 
+  /*
 
    // Getting data from Serial Driver with a timeout.
     msg_t tkn = sdGetTimeout(&SD2, TIME_MS2I(1000));
@@ -129,7 +130,7 @@ static THD_FUNCTION(ThdSerial, arg) {
     }
     // No sleep needed here. This thread releases the CPU onsdGetTimeout.
 
-  }
+  }*/
 }
 
 
@@ -178,16 +179,9 @@ static THD_FUNCTION(ThdGNSS, arg) {
   (void)arg;
   chRegSetThreadName("GNSS");
   myprintf("ThdGNSS\n");
-#warning todo sent command to increase baudrate
 
-  static const SerialConfig my_config =
-  {
-   9600,
-   0,
-   USART_CR2_STOP1_BITS,
-   0
-  };
-  sdStart(&SD1, &my_config);
+  gnssInit();
+
 
 
   while(true){
@@ -196,9 +190,7 @@ static THD_FUNCTION(ThdGNSS, arg) {
     /* Checking if a timeout has occurred. */
     if(tkn != MSG_TIMEOUT) {
       /* Not a timeout-> forward*/
-
-#warning GNSS disabled
-      //sdPut(&SD2, tkn);
+      sdPut(&SD2, tkn);
     }
   }
 }

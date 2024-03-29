@@ -55,7 +55,7 @@
 #define GPIOA_MCO_1                8U
 #define GPIOA_USART1_TX                9U
 #define GPIOA_USART1_RX               10U
-#define GPIOA_PIN11               11U
+#define GPIOA_TIM1_CH4_IN               11U
 #define GPIOA_heater_enable               12U
 #define GPIOA_SWDIO               13U
 #define GPIOA_SWCLK               14U
@@ -268,7 +268,7 @@
                                      PIN_MODE_INPUT(GPIOA_MCO_1) |         \
                                      PIN_MODE_ALTERNATE(GPIOA_USART1_TX) |         \
                                      PIN_MODE_ALTERNATE(GPIOA_USART1_RX) |         \
-                                     PIN_MODE_INPUT(GPIOA_PIN11) |  \
+                                     PIN_MODE_ALTERNATE(GPIOA_TIM1_CH4_IN) |  \
                                      PIN_MODE_OUTPUT(GPIOA_heater_enable) |  \
                                      PIN_MODE_ALTERNATE(GPIOA_SWDIO) |      \
                                      PIN_MODE_ALTERNATE(GPIOA_SWCLK) |      \
@@ -284,7 +284,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOA_MCO_1) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOA_USART1_TX) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOA_USART1_RX) |     \
-                                     PIN_OTYPE_PUSHPULL(GPIOA_PIN11) |  \
+                                     PIN_OTYPE_PUSHPULL(GPIOA_TIM1_CH4_IN) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_heater_enable) |  \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWDIO) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOA_SWCLK) |      \
@@ -300,7 +300,7 @@
                                      PIN_OSPEED_HIGH(GPIOA_MCO_1) |        \
                                      PIN_OSPEED_MEDIUM(GPIOA_USART1_TX) |        \
                                      PIN_OSPEED_MEDIUM(GPIOA_USART1_RX) |        \
-                                     PIN_OSPEED_LOW(GPIOA_PIN11) |     \
+                                     PIN_OSPEED_LOW(GPIOA_TIM1_CH4_IN) |     \
                                      PIN_OSPEED_LOW(GPIOA_heater_enable) |     \
                                      PIN_OSPEED_LOW(GPIOA_SWDIO) |         \
                                      PIN_OSPEED_LOW(GPIOA_SWCLK) |         \
@@ -316,7 +316,7 @@
                                      PIN_PUPDR_FLOATING(GPIOA_MCO_1) |       \
                                      PIN_PUPDR_FLOATING(GPIOA_USART1_TX) |       \
                                      PIN_PUPDR_FLOATING(GPIOA_USART1_RX) |       \
-                                     PIN_PUPDR_PULLDOWN(GPIOA_PIN11) |  \
+                                     PIN_PUPDR_FLOATING(GPIOA_TIM1_CH4_IN) |  \
                                      PIN_PUPDR_FLOATING(GPIOA_heater_enable) |  \
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWDIO) |        \
                                      PIN_PUPDR_PULLDOWN(GPIOA_SWCLK) |      \
@@ -332,7 +332,7 @@
                                      PIN_ODR_LOW(GPIOA_MCO_1) |           \
                                      PIN_ODR_LOW(GPIOA_USART1_TX) |           \
                                      PIN_ODR_LOW(GPIOA_USART1_RX) |           \
-                                     PIN_ODR_LOW(GPIOA_PIN11) |        \
+                                     PIN_ODR_LOW(GPIOA_TIM1_CH4_IN) |        \
                                      PIN_ODR_LOW(GPIOA_heater_enable) |        \
                                      PIN_ODR_LOW(GPIOA_SWDIO) |            \
                                      PIN_ODR_LOW(GPIOA_SWCLK) |            \
@@ -348,7 +348,7 @@
 #define VAL_GPIOA_AFRH              (PIN_AFIO_AF(GPIOA_MCO_1, 0U) |        \
                                      PIN_AFIO_AF(GPIOA_USART1_TX, 7U) |        \
                                      PIN_AFIO_AF(GPIOA_USART1_RX, 7U) |        \
-                                     PIN_AFIO_AF(GPIOA_PIN11, 0U) |    \
+                                     PIN_AFIO_AF(GPIOA_TIM1_CH4_IN, 1U) |    \
                                      PIN_AFIO_AF(GPIOA_heater_enable, 0U) |    \
                                      PIN_AFIO_AF(GPIOA_SWDIO, 0U) |         \
                                      PIN_AFIO_AF(GPIOA_SWCLK, 0U) |         \

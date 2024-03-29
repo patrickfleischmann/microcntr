@@ -11,6 +11,6 @@
 #include <stdint.h>
 
 void TIM5_init(void);
-uint32_t TIM5_get_capture_reg(void);
+void TIM1_init(void);
 
 #endif /* SOURCE_TIMERS_H_ */

@@ -7,12 +7,16 @@
 
 #include "main.h"
 
+extern uint64_t tim1_overflows;
+extern uint64_t tim1_cc4_previous;
+extern uint64_t tim1_cc4_current;
+
 void cntr_cal_sel_TIMEPULSE_HSI(void){
   palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
 }
 
 uint32_t cntr_count_CAL_100M(void){
-  return TIM5_get_capture_reg();
+  return TIM5->CCR1;
 }
 
 void calModeHSI(void){ //enable and select HSI output
@@ -50,7 +54,7 @@ void calModeOff(void){ //enable and select int 100M ref
   palSetPad(GPIOA, GPIOA_CAL_EN);
   palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
 
-//#warning should be managed by GPS thread
+#warning synchronize gnss configuration
   palClearPad(GPIOC, GPIOC_GPS_RESETn); //ensure timepulse output of GNSS module is high-z
 
   //defaults configuration for MCO_1 in RCC->CFGR: no division, HSI selected
@@ -61,11 +65,36 @@ void calModeOff(void){ //enable and select int 100M ref
   palClearPad(GPIOA, GPIOA_MCO_1);
 }
 
+void calModeGNSSEnabled(void){ //enable and select int 100M ref
+  myprintf("calModeGnssEnabled\n");
+  palSetPad(GPIOA, GPIOA_CAL_EN);
+  palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
+
+  palSetPadMode(GPIOA, GPIOA_MCO_1, PAL_MODE_INPUT);
+#warning should be managed by GPS thread
+  palSetPad(GPIOC, GPIOC_GPS_RESETn); //ensure MCO_1 is high-z before this
+}
+
+
 
 void ThdCntrFunc(void) {
   myprintf("ThdCntr\n");
 
   TIM5_init();
+  tim1_overflows = 0;
+  TIM1_init();
+
+  myprintf("tim1_overflows: %u\n", (uint32_t)tim1_overflows);
+
+  uint64_t test = 0;
+  myprintf("a: %u\n", test);
+  test++;
+  myprintf("b: %u, c:%u\n", (uint32_t)test, (uint32_t)(test>>32));
+  test++;
+  myprintf("b: %lu, c:%u\n", (uint32_t)test);
+  test++;
+  myprintf("b: %lu, c:%u\n", test);
+
 
 //  //selftest muxout
 //  myprintf("CNT_in = %d\n", palReadPad(GPIOA, GPIOA_CNT_IN));
@@ -100,24 +129,23 @@ void ThdCntrFunc(void) {
 //  myprintf("CNT_in = %d\n", palReadPad(GPIOA, GPIOA_CNT_IN));
 
   //calModeIntRef100M();
-  calModeOff();
+  calModeGNSSEnabled();
+  //calModeOff();
   //calModeHSI();
   //adf_config_div_n(1000);
   //adf_config_div_r(50); //seems to work
-  adf_config_div_n(50); //divider not working correctly
+  adf_config_div_n(1000); //divider not working correctly
 
   while(true){
 
-
+/*
     uint32_t a,b;
-
     while(!(TIM5->SR & TIM_SR_CC1IF));
     a = TIM5->CCR1; //flag CC1IF cleared by this read
     while(!(TIM5->SR & TIM_SR_CC1IF));
     b = TIM5->CCR1;
-
     myprintf("a: %10u, b: %10u, b-a: %10u\n", a, b, b-a);
-
+*/
 
 
    // TIM5->SR = ~TIM_SR_CC1IF;
@@ -125,8 +153,13 @@ void ThdCntrFunc(void) {
     //myprintf("ccr1: %u, cnt: %u, cc1F: %u\n", TIM5->CCR1, TIM5->CNT, (TIM5->SR & TIM_SR_CC1IF));
     //myprintf("sr: %u\n", TIM5->SR);
 
+    myprintf("tim1_cc4_previous: %u, tim1_cc4_current: %u\n", (uint32_t)tim1_cc4_previous, (uint32_t)tim1_cc4_current);
+    myprintf("period: %u\n", (uint32_t)(tim1_cc4_current - tim1_cc4_previous));
 
 
+
+#warning myprintf only supports 32bit integers todo extend to 64bit
+    myprintf("tim1_overflows: %u\n", (uint32_t)tim1_overflows);
 
     chThdSleepMilliseconds(500);
   }
