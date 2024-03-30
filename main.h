@@ -8,6 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <printf.h>
 #include <thd_cntr.h>
 #include <timers.h>
 #include <string.h>

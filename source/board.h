@@ -82,7 +82,7 @@
 #define GPIOC_PSHIFT1                 1U
 #define GPIOC_ADC_HEAT                 2U
 #define GPIOC_PIN3                 3U
-#define GPIOC_PIN4                 4U
+#define GPIOC_DISCHARGE                 4U
 #define GPIOC_CNT_IN                 5U
 #define GPIOC_PIN6                 6U
 #define GPIOC_PIN7                 7U
@@ -464,15 +464,15 @@
                                      PIN_MODE_OUTPUT(GPIOC_PSHIFT1) |         \
                                      PIN_MODE_ANALOG(GPIOC_ADC_HEAT) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN3) |           \
-                                     PIN_MODE_INPUT(GPIOC_PIN4) |           \
-                                     PIN_MODE_INPUT(GPIOC_CNT_IN) |           \
+                                     PIN_MODE_ALTERNATE(GPIOC_DISCHARGE) |           \
+                                     PIN_MODE_ALTERNATE(GPIOC_CNT_IN) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN6) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN7) |         \
                                      PIN_MODE_INPUT(GPIOC_PIN8) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN9) |           \
                                      PIN_MODE_OUTPUT(GPIOC_PIEZO_A) |          \
                                      PIN_MODE_OUTPUT(GPIOC_PIEZO_B) |          \
-                                     PIN_MODE_OUTPUT(GPIOC_GPS_RESETn) |          \
+                                     PIN_MODE_INPUT(GPIOC_GPS_RESETn) |          \
                                      PIN_MODE_INPUT(GPIOC_PIN13) |         \
                                      PIN_MODE_OUTPUT(GPIOC_LED2) |       \
                                      PIN_MODE_INPUT(GPIOC_PIN15))
@@ -480,7 +480,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOC_PSHIFT1) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOC_ADC_HEAT) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN3) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOC_PIN4) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOC_DISCHARGE) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_CNT_IN) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN6) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN7) |     \
@@ -496,7 +496,7 @@
                                      PIN_OSPEED_LOW(GPIOC_PSHIFT1) |        \
                                      PIN_OSPEED_LOW(GPIOC_ADC_HEAT) |          \
                                      PIN_OSPEED_LOW(GPIOC_PIN3) |          \
-                                     PIN_OSPEED_LOW(GPIOC_PIN4) |          \
+                                     PIN_OSPEED_LOW(GPIOC_DISCHARGE) |          \
                                      PIN_OSPEED_LOW(GPIOC_CNT_IN) |          \
                                      PIN_OSPEED_LOW(GPIOC_PIN6) |          \
                                      PIN_OSPEED_LOW(GPIOC_PIN7) |        \
@@ -512,15 +512,15 @@
                                      PIN_PUPDR_FLOATING(GPIOC_PSHIFT1) |       \
                                      PIN_PUPDR_FLOATING(GPIOC_ADC_HEAT) |         \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN3) |         \
-                                     PIN_PUPDR_PULLDOWN(GPIOC_PIN4) |         \
-                                     PIN_PUPDR_PULLDOWN(GPIOC_CNT_IN) |         \
+                                     PIN_PUPDR_FLOATING(GPIOC_DISCHARGE) |         \
+                                     PIN_PUPDR_FLOATING(GPIOC_CNT_IN) |         \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN6) |         \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN7) |       \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN8) |         \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN9) |         \
                                      PIN_PUPDR_FLOATING(GPIOC_PIEZO_A) |        \
                                      PIN_PUPDR_FLOATING(GPIOC_PIEZO_B) |        \
-                                     PIN_PUPDR_FLOATING(GPIOC_GPS_RESETn) |        \
+                                     PIN_PUPDR_PULLUP(GPIOC_GPS_RESETn) |        \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN13) |     \
                                      PIN_PUPDR_FLOATING(GPIOC_LED2) |   \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN15))
@@ -528,7 +528,7 @@
                                      PIN_ODR_LOW(GPIOC_PSHIFT1) |           \
                                      PIN_ODR_LOW(GPIOC_ADC_HEAT) |             \
                                      PIN_ODR_LOW(GPIOC_PIN3) |             \
-                                     PIN_ODR_LOW(GPIOC_PIN4) |             \
+                                     PIN_ODR_LOW(GPIOC_DISCHARGE) |             \
                                      PIN_ODR_LOW(GPIOC_CNT_IN) |             \
                                      PIN_ODR_LOW(GPIOC_PIN6) |             \
                                      PIN_ODR_LOW(GPIOC_PIN7) |           \
@@ -544,7 +544,7 @@
                                      PIN_AFIO_AF(GPIOC_PSHIFT1, 0U) |        \
                                      PIN_AFIO_AF(GPIOC_ADC_HEAT, 0U) |          \
                                      PIN_AFIO_AF(GPIOC_PIN3, 0U) |          \
-                                     PIN_AFIO_AF(GPIOC_PIN4, 0U) |          \
+                                     PIN_AFIO_AF(GPIOC_DISCHARGE, 3U) |          \
                                      PIN_AFIO_AF(GPIOC_CNT_IN, 3U) |          \
                                      PIN_AFIO_AF(GPIOC_PIN6, 0U) |          \
                                      PIN_AFIO_AF(GPIOC_PIN7, 0U))

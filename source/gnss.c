@@ -28,7 +28,7 @@ void configSend(const char* s, int len){
 
 void gnssDisablePeriodics(void){
   CONFSEND(NMEA_PUBX_GSA_DISABLE);
-//  CONFSEND(NMEA_PUBX_GSV_DISABLE);
+  CONFSEND(NMEA_PUBX_GSV_DISABLE);
   CONFSEND(NMEA_PUBX_GLL_DISABLE);
   CONFSEND(NMEA_PUBX_GGA_DISABLE);
   CONFSEND(NMEA_PUBX_RMC_DISABLE);
@@ -50,7 +50,7 @@ void gnssInit(void){
   myprintf("ThdGNSS change GNSS baudrate to 230400\n");
   CONFSEND(CFG_BAUD230400);
 
-  myprintf("ThdGNSS change GNSS baudrate to 230400\n");
+  myprintf("ThdGNSS change GNSS baudrate to 230400 two times! why?\n");
   CONFSEND(CFG_BAUD230400);
 #warning why ist two times programming necessary?
 

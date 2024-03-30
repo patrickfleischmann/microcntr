@@ -65,15 +65,28 @@ static mutex_t mutex_bsp2;
 static uint32_t beep_ms = 200;
 
 int myprintf(const char *fmt, ...) {
-  va_list ap;
-  int formatted_bytes;
-  chMtxLock(&mutex_bsp2);
-  va_start(ap, fmt);
-  formatted_bytes = chvprintf(bsp2, fmt, ap);
-  va_end(ap);
-  chMtxUnlock(&mutex_bsp2);
+//  va_list ap;
+//  int formatted_bytes;
+//  chMtxLock(&mutex_bsp2);
+//  va_start(ap, fmt);
+//  formatted_bytes = chvprintf(bsp2, fmt, ap);
+//  va_end(ap);
+//  chMtxUnlock(&mutex_bsp2);
+//
+//  return formatted_bytes;
 
-  return formatted_bytes;
+    va_list ap;
+    int formatted_bytes;
+    chMtxLock(&mutex_bsp2);
+    va_start(ap, fmt);
+    formatted_bytes = vprintf(fmt, ap);
+    va_end(ap);
+    chMtxUnlock(&mutex_bsp2);
+    return formatted_bytes;
+}
+
+void _putchar(char character){
+  sdPut(&SD2, character);
 }
 
 
@@ -174,25 +187,28 @@ static THD_FUNCTION(ThdBlinker, arg) {
 /*
  * GNSS (UART1) receive and forward
  */
-static THD_WORKING_AREA(waThdGNSS, 128);
+static THD_WORKING_AREA(waThdGNSS, 256);
 static THD_FUNCTION(ThdGNSS, arg) {
   (void)arg;
   chRegSetThreadName("GNSS");
   myprintf("ThdGNSS\n");
-
+#warning GNSS forwarding disabled
+/*
   gnssInit();
 
 
-
   while(true){
-    /* Getting data from Serial Driver with a timeout. */
+    // Getting data from Serial Driver with a timeout.
     msg_t tkn = sdGetTimeout(&SD1, TIME_MS2I(100));
-    /* Checking if a timeout has occurred. */
+    // Checking if a timeout has occurred.
     if(tkn != MSG_TIMEOUT) {
-      /* Not a timeout-> forward*/
+      // Not a timeout-> forward
       sdPut(&SD2, tkn);
     }
   }
+*/
+
+  chThdSleepMilliseconds(1000); //for debugging when disabled
 }
 
 /*
@@ -219,13 +235,13 @@ static THD_FUNCTION(ThdBeeper, arg) {
   }
 }
 
-static THD_WORKING_AREA(waThdCntr, 128);
+static THD_WORKING_AREA(waThdCntr, 256);
 static THD_FUNCTION(ThdCntr, arg) {
   (void)arg;
   ThdCntrFunc();
 }
 
-static THD_WORKING_AREA(waThdDisp, 128);
+static THD_WORKING_AREA(waThdDisp, 256);
 static THD_FUNCTION(ThdDisp, arg) {
   (void)arg;
   ThdDispFunc();

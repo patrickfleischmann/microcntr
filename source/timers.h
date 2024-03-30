@@ -12,5 +12,6 @@
 
 void TIM5_init(void);
 void TIM1_init(void);
+void TIM9_init(uint16_t delay, uint16_t width);
 
 #endif /* SOURCE_TIMERS_H_ */

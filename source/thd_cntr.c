@@ -1,15 +1,25 @@
 /*
  * thd_cntr.c
  *
- *  Created on: 04.03.2024
- *      Author: patri
+ * Created on: 04.03.2024
+ * Author: patrick
+ *
+ * time units:
+ * timer TIM1,TIM5 tick: 10ns
+ * shifted by 16 in int64_t. LSB: 0.152587890625 ps MSB: 703687.441777 s
+ * max value/overflow: ca. 1407375 s (= 16.3 d)
+ *
+ * gnss timepulse: 1 pps
  */
+
+#define TIME_1S (100000000LL << 16)
+#define TIME_RES ((float)(0.152587890625e-12))
 
 #include "main.h"
 
-extern uint64_t tim1_overflows;
-extern uint64_t tim1_cc4_previous;
-extern uint64_t tim1_cc4_current;
+int64_t timepulse_capt_prev;
+int64_t timepulse_capt_curr;
+extern uint32_t tim9_updates;
 
 void cntr_cal_sel_TIMEPULSE_HSI(void){
   palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
@@ -49,12 +59,14 @@ void calModeIntRef100M(void){ //enable and select int 100M ref
   palSetPad(GPIOB, GPIOB_CAL_SOUR_SEL);
 }
 
-void calModeOff(void){ //enable and select int 100M ref
+//default state
+//GNSS enabled, MCO disabled
+#warning todo disconnect timepulse in hw. then keep GNSS running
+void calModeOff(void){
   myprintf("calModeOff\n");
   palSetPad(GPIOA, GPIOA_CAL_EN);
-  palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
+  palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL); //HSI
 
-#warning synchronize gnss configuration
   palClearPad(GPIOC, GPIOC_GPS_RESETn); //ensure timepulse output of GNSS module is high-z
 
   //defaults configuration for MCO_1 in RCC->CFGR: no division, HSI selected
@@ -65,13 +77,13 @@ void calModeOff(void){ //enable and select int 100M ref
   palClearPad(GPIOA, GPIOA_MCO_1);
 }
 
+#warning only required as long as timepulse is still connected
 void calModeGNSSEnabled(void){ //enable and select int 100M ref
   myprintf("calModeGnssEnabled\n");
   palSetPad(GPIOA, GPIOA_CAL_EN);
-  palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
+  palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL); //HSI
 
   palSetPadMode(GPIOA, GPIOA_MCO_1, PAL_MODE_INPUT);
-#warning should be managed by GPS thread
   palSetPad(GPIOC, GPIOC_GPS_RESETn); //ensure MCO_1 is high-z before this
 }
 
@@ -81,19 +93,13 @@ void ThdCntrFunc(void) {
   myprintf("ThdCntr\n");
 
   TIM5_init();
-  tim1_overflows = 0;
-  TIM1_init();
 
-  myprintf("tim1_overflows: %u\n", (uint32_t)tim1_overflows);
+  timepulse_capt_prev = 0;
+  timepulse_capt_curr = 0;
+  TIM1_init(); //capturing timepulse
 
-  uint64_t test = 0;
-  myprintf("a: %u\n", test);
-  test++;
-  myprintf("b: %u, c:%u\n", (uint32_t)test, (uint32_t)(test>>32));
-  test++;
-  myprintf("b: %lu, c:%u\n", (uint32_t)test);
-  test++;
-  myprintf("b: %lu, c:%u\n", test);
+  //todo adjust
+  TIM9_init(90, 10); //90,10->delay ca. 2us, pulsewidth 100nS
 
 
 //  //selftest muxout
@@ -128,8 +134,8 @@ void ThdCntrFunc(void) {
 //  chThdSleepMilliseconds(1);
 //  myprintf("CNT_in = %d\n", palReadPad(GPIOA, GPIOA_CNT_IN));
 
-  //calModeIntRef100M();
-  calModeGNSSEnabled();
+  calModeIntRef100M();
+  //calModeGNSSEnabled();
   //calModeOff();
   //calModeHSI();
   //adf_config_div_n(1000);
@@ -138,14 +144,15 @@ void ThdCntrFunc(void) {
 
   while(true){
 
-/*
+
     uint32_t a,b;
     while(!(TIM5->SR & TIM_SR_CC1IF));
     a = TIM5->CCR1; //flag CC1IF cleared by this read
     while(!(TIM5->SR & TIM_SR_CC1IF));
     b = TIM5->CCR1;
     myprintf("a: %10u, b: %10u, b-a: %10u\n", a, b, b-a);
-*/
+
+
 
 
    // TIM5->SR = ~TIM_SR_CC1IF;
@@ -153,15 +160,13 @@ void ThdCntrFunc(void) {
     //myprintf("ccr1: %u, cnt: %u, cc1F: %u\n", TIM5->CCR1, TIM5->CNT, (TIM5->SR & TIM_SR_CC1IF));
     //myprintf("sr: %u\n", TIM5->SR);
 
-    myprintf("tim1_cc4_previous: %u, tim1_cc4_current: %u\n", (uint32_t)tim1_cc4_previous, (uint32_t)tim1_cc4_current);
-    myprintf("period: %u\n", (uint32_t)(tim1_cc4_current - tim1_cc4_previous));
-
-
-
-#warning myprintf only supports 32bit integers todo extend to 64bit
-    myprintf("tim1_overflows: %u\n", (uint32_t)tim1_overflows);
-
-    chThdSleepMilliseconds(500);
+/*
+    //timepulse measurement
+    int64_t period = timepulse_capt_curr - timepulse_capt_prev;
+    myprintf("2 tim1_cc4_previous: %llu, tim1_cc4_current: %llu\n", timepulse_capt_prev, timepulse_capt_curr);
+    myprintf("2 period: 1 s + %e s\n", (float)(period - TIME_1S) * TIME_RES);
+*/
+    chThdSleepMilliseconds(1000);
   }
 }
 

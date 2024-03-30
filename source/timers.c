@@ -7,18 +7,18 @@
 
 #include "main.h"
 
-void basic_timer_setup(TIM_TypeDef *TMR);
 
-uint64_t tim1_overflows;
-uint64_t tim1_cc4_previous;
-uint64_t tim1_cc4_current;
+
+extern int64_t timepulse_capt_prev;
+extern int64_t timepulse_capt_curr;
+uint32_t tim1_overflows;
 
 
 //TIM5: capture synchronized counter input signal
 //adapted from AN4776
 //32bit counter, running at 100MHz
 void TIM5_init(void){
-#warning GPIOA_CNT_IN pin mode alternate wasn't set in board.h! try again with board.h
+#warning GPIOA_CNT_IN pin mode alternate wasnt set in board.h! try again with board.h
   palSetPadMode(GPIOA, GPIOA_CNT_IN, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT); //setting alternate function in board.h didn't work
   SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM5EN); //enable peripheral clock (should be handled by mcuconf in chibi hal system)
 
@@ -41,9 +41,10 @@ void TIM5_init(void){
   TIM5->SR = ~TIM_SR_CC1IF; //Clear event flag
 }
 
-//TIM1 capture timepulse input (GPIOA_TIM1_CH4_IN)
+//TIM1 capture timepulse input on rising edge(GPIOA_TIM1_CH4_IN)
 //16bit -> use update interrupt to count overflows
 //continuous up-counter. overflow -> update event -> update interrupt
+//input capture
 void TIM1_init(void){
 //#warning GPIOA_CNT_IN pin mode alternate wasn't set in board.h! try again with board.h
 //  palSetPadMode(GPIOA, GPIOA_CNT_IN, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT); //setting alternate function in board.h didn't work
@@ -51,51 +52,67 @@ void TIM1_init(void){
   SET_BIT(RCC->APB2RSTR, RCC_APB2RSTR_TIM1RST); //assert reset
   CLEAR_BIT(RCC->APB2RSTR, RCC_APB2RSTR_TIM1RST); //deassert reset -> registers should be at power up defaults
 
-  //TIM1->CR2 = 0; //defaults
-  //TIM1->SMCR = 0; // Reset the SMCR register
   TIM1->DIER = TIM_DIER_UIE; //Update interrupt enable
   TIM1->ARR = 0xFFFF; //auto reload (period) set to max (16bit)
-  //TIM1->PSC = 0; //prescaler 1
   TIM1->EGR = TIM_EGR_UG; //update (load ARR, prescaler)
-  //TIM1->CCER = 0; //all CC channels off
-  //TIM1->CCMR1 = 0;
   TIM1->CCMR2 |= TIM_CCMR2_CC4S_0; //CC4 channel is configured as input, IC4 is mapped on TI4
-                                   //CC1S bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER).
-
-  //(TIM5->CCER |= TIM_CCER_CC1P; //Circuit is sensitive to TIxFP1 falling edge (capture..)
-  //CCER_CC1P = 0 -> //Circuit is sensitive to TIxFP1 rising edge (capture..
+                                   //CCxS bits are writable only when the channel is OFF (CC1E = 0 in TIMx_CCER).
   TIM1->CCER |= TIM_CCER_CC4E; //CC4 enabled
-  //TIM1->CR1 = 0;//upcounter, continuous
   TIM1->CR1 = TIM_CR1_CEN; //enable
   TIM1->SR = ~TIM_SR_CC4IF; //Clear event flag
 
   tim1_overflows = 0;
-  tim1_cc4_previous = 0;
-  tim1_cc4_current = 0;
 
   NVIC_SetPriority(TIM1_UP_IRQn, 7);
   NVIC_EnableIRQ(TIM1_UP_IRQn);
-
 }
-
-
-
 
 //interrupt vector names defined in os/hal/ports/STM32/STM32F4xx/stm32_isr.h
 //priorities?
 //use update handler and also check capture flag
-CH_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER)
-{
+CH_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){
   CH_IRQ_PROLOGUE();
 
   uint32_t sr = TIM1->SR;
   TIM1->SR = 0; //clear all
-
+  uint16_t ccr = TIM1->CCR4;
   if(sr & TIM_SR_CC4IF){ //capture event
-    tim1_cc4_previous = tim1_cc4_current;
-    tim1_cc4_current = TIM1->CCR4 + (tim1_overflows<<16);
+    timepulse_capt_prev = timepulse_capt_curr;
+    timepulse_capt_curr = ((uint64_t)ccr << 16) + ((uint64_t)tim1_overflows << 32);
   }
-
   tim1_overflows++;
+
   CH_IRQ_EPILOGUE();
 }
+
+
+
+//TIM9 (16bit, 100MHz) one pulse mode
+//generate discharge pulse for interpolator
+//input: PC5, TIM9_CH2, GPIOC_CNT_IN
+//output: PC4, TIM9_CH1,GPIOC_DISCHARGE
+void TIM9_init(uint16_t delay, uint16_t width){
+  SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM9EN); //enable peripheral clock
+  SET_BIT(RCC->APB2RSTR, RCC_APB2RSTR_TIM9RST); //assert reset
+  CLEAR_BIT(RCC->APB2RSTR, RCC_APB2RSTR_TIM9RST); //deassert reset -> registers should be at power up defaults
+
+  //trigger input
+  TIM9->CCMR1 = TIM_CCMR1_CC2S_0 | TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1M_0; //channel 2 is input, PWM mode 2: positive pulse after delay
+  TIM9->CCER = TIM_CCER_CC2P | TIM_CCER_CC1E; //falling edge, CC1 output enabled
+  TIM9->SMCR = TIM_SMCR_TS_2 | TIM_SMCR_TS_1 | TIM_SMCR_SMS_2 | TIM_SMCR_SMS_1; //trigger input = Filtered Timer Input 2 (TI2FP2)
+                                                                                //Slave mode = trigger (counter starts on trigger)
+  //output
+  TIM9->CCR1 = delay; //delay after trigger
+  TIM9->ARR = delay + width; //pulse width
+  TIM9->CR1 = TIM_CR1_OPM; //stop after one pulse (CEN cleared by hw)
+}
+
+
+
+
+
+
+
+
+
+
