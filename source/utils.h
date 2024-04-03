@@ -16,9 +16,6 @@
 void heater_setTempDegC(float t);
 void heater_init(void);
 void heater_disable(void);
-float adc_get_temp_internal(void);
-float adc_get_temp_heater(void);
-float adc_get_current(void);
 uint32_t rand32(void);
 void piezo_toggle(void);
 

@@ -78,7 +78,7 @@
 #define GPIOB_LED1               14U
 #define GPIOB_ADF_DATA               15U
 
-#define GPIOC_PIN0                 0U
+#define GPIOC_TAC_OUT                 0U
 #define GPIOC_PSHIFT1                 1U
 #define GPIOC_ADC_HEAT                 2U
 #define GPIOC_PIN3                 3U
@@ -460,7 +460,7 @@
  * GPIOC setup:
  * PC14 - LED1                      (output, lowspeed).
  */
-#define VAL_GPIOC_MODER             (PIN_MODE_INPUT(GPIOC_PIN0) |         \
+#define VAL_GPIOC_MODER             (PIN_MODE_ANALOG(GPIOC_TAC_OUT) |         \
                                      PIN_MODE_OUTPUT(GPIOC_PSHIFT1) |         \
                                      PIN_MODE_ANALOG(GPIOC_ADC_HEAT) |           \
                                      PIN_MODE_INPUT(GPIOC_PIN3) |           \
@@ -476,7 +476,7 @@
                                      PIN_MODE_INPUT(GPIOC_PIN13) |         \
                                      PIN_MODE_OUTPUT(GPIOC_LED2) |       \
                                      PIN_MODE_INPUT(GPIOC_PIN15))
-#define VAL_GPIOC_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOC_PIN0) |     \
+#define VAL_GPIOC_OTYPER            (PIN_OTYPE_PUSHPULL(GPIOC_TAC_OUT) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PSHIFT1) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOC_ADC_HEAT) |       \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN3) |       \
@@ -492,7 +492,7 @@
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN13) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOC_LED2) |   \
                                      PIN_OTYPE_PUSHPULL(GPIOC_PIN15))
-#define VAL_GPIOC_OSPEEDR           (PIN_OSPEED_LOW(GPIOC_PIN0) |        \
+#define VAL_GPIOC_OSPEEDR           (PIN_OSPEED_LOW(GPIOC_TAC_OUT) |        \
                                      PIN_OSPEED_LOW(GPIOC_PSHIFT1) |        \
                                      PIN_OSPEED_LOW(GPIOC_ADC_HEAT) |          \
                                      PIN_OSPEED_LOW(GPIOC_PIN3) |          \
@@ -508,7 +508,7 @@
                                      PIN_OSPEED_LOW(GPIOC_PIN13) |        \
                                      PIN_OSPEED_LOW(GPIOC_LED2) |      \
                                      PIN_OSPEED_LOW(GPIOC_PIN15))
-#define VAL_GPIOC_PUPDR             (PIN_PUPDR_PULLDOWN(GPIOC_PIN0) |       \
+#define VAL_GPIOC_PUPDR             (PIN_PUPDR_FLOATING(GPIOC_TAC_OUT) |       \
                                      PIN_PUPDR_FLOATING(GPIOC_PSHIFT1) |       \
                                      PIN_PUPDR_FLOATING(GPIOC_ADC_HEAT) |         \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN3) |         \
@@ -524,7 +524,7 @@
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN13) |     \
                                      PIN_PUPDR_FLOATING(GPIOC_LED2) |   \
                                      PIN_PUPDR_PULLDOWN(GPIOC_PIN15))
-#define VAL_GPIOC_ODR               (PIN_ODR_LOW(GPIOC_PIN0) |           \
+#define VAL_GPIOC_ODR               (PIN_ODR_LOW(GPIOC_TAC_OUT) |           \
                                      PIN_ODR_LOW(GPIOC_PSHIFT1) |           \
                                      PIN_ODR_LOW(GPIOC_ADC_HEAT) |             \
                                      PIN_ODR_LOW(GPIOC_PIN3) |             \
@@ -540,7 +540,7 @@
                                      PIN_ODR_LOW(GPIOC_PIN13) |           \
                                      PIN_ODR_LOW(GPIOC_LED2) |         \
                                      PIN_ODR_LOW(GPIOC_PIN15))
-#define VAL_GPIOC_AFRL              (PIN_AFIO_AF(GPIOC_PIN0, 0U) |        \
+#define VAL_GPIOC_AFRL              (PIN_AFIO_AF(GPIOC_TAC_OUT, 0U) |        \
                                      PIN_AFIO_AF(GPIOC_PSHIFT1, 0U) |        \
                                      PIN_AFIO_AF(GPIOC_ADC_HEAT, 0U) |          \
                                      PIN_AFIO_AF(GPIOC_PIN3, 0U) |          \

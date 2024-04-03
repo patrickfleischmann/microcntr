@@ -20,6 +20,12 @@
 int64_t timepulse_capt_prev;
 int64_t timepulse_capt_curr;
 extern uint32_t tim9_updates;
+extern uint32_t adc_TAC_end_cb_counter;
+extern uint32_t adc_TAC_error_cb_counter;
+
+uint32_t tim5_ccr1;
+uint32_t adc_jdr1;
+bool adc_isr_flag;
 
 void cntr_cal_sel_TIMEPULSE_HSI(void){
   palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
@@ -92,6 +98,7 @@ void calModeGNSSEnabled(void){ //enable and select int 100M ref
 void ThdCntrFunc(void) {
   myprintf("ThdCntr\n");
 
+  adc_init_TAC(); //triggered by TIM5
   TIM5_init();
 
   timepulse_capt_prev = 0;
@@ -140,20 +147,32 @@ void ThdCntrFunc(void) {
   //calModeHSI();
   //adf_config_div_n(1000);
   //adf_config_div_r(50); //seems to work
-  adf_config_div_n(1000); //divider not working correctly
+  adf_config_div_n(1000); //
 
   while(true){
 
 
-    uint32_t a,b;
-    while(!(TIM5->SR & TIM_SR_CC1IF));
-    a = TIM5->CCR1; //flag CC1IF cleared by this read
-    while(!(TIM5->SR & TIM_SR_CC1IF));
-    b = TIM5->CCR1;
-    myprintf("a: %10u, b: %10u, b-a: %10u\n", a, b, b-a);
+      uint32_t a,b;
+//    while(!(TIM5->SR & TIM_SR_CC1IF));
+//    a = TIM5->CCR1; //flag CC1IF cleared by this read
+//    while(!(TIM5->SR & TIM_SR_CC1IF));
+//    b = TIM5->CCR1;
+    //myprintf("a: %10u, b: %10u, b-a: %10u\n", a, b, b-a);
+
+   // myprintf("%.3f %.3f %.3f\n\r", adc_get_temp_internal(), adc_get_temp_heater(), adc_get_current());
 
 
 
+    if(adc_isr_flag){
+      myprintf("ADC1 JDR1: %04d\n",adc_jdr1);
+      a = b;
+      b = tim5_ccr1;
+      myprintf("a: %10u, b: %10u, b-a: %10u\n", a, b, b-a);
+      adc_isr_flag = 0;
+    }
+
+
+    //myprintf("adc_TAC_end_cb_counter: %d, adc_TAC_error_cb_counter: %d\n", adc_TAC_end_cb_counter, adc_TAC_error_cb_counter);
 
    // TIM5->SR = ~TIM_SR_CC1IF;
    // TIM5->EGR |= TIM_EGR_CC1G; //generate capture event by software, this seems to work
@@ -167,6 +186,19 @@ void ThdCntrFunc(void) {
     myprintf("2 period: 1 s + %e s\n", (float)(period - TIME_1S) * TIME_RES);
 */
     chThdSleepMilliseconds(1000);
+  }
+}
+
+//interrupt vector names defined in os/hal/ports/STM32/STM32F4xx/stm32_isr.h
+//priorities?
+//use update handler and also check capture flag
+CH_FAST_IRQ_HANDLER(Vector88) { //ADC, no chibios allowed in fast interrupt
+//  uint32_t sr = ADC1->SR; //todo can overrun be checked?
+  ADC1->SR = 0; //clear all
+  if(!adc_isr_flag){
+    tim5_ccr1 = TIM5->CCR1;
+    adc_jdr1 = ADC1->JDR1;
+    adc_isr_flag = 1;
   }
 }
 

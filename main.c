@@ -62,7 +62,7 @@ BaseSequentialStream* bsp1 = (BaseSequentialStream*)&SD1;
 static mutex_t mutex_bsp2;
 
 
-static uint32_t beep_ms = 200;
+static uint32_t beep_ms = 0; //startup beep
 
 int myprintf(const char *fmt, ...) {
 //  va_list ap;
@@ -116,10 +116,6 @@ static THD_FUNCTION(ThdSerial, arg) {
     if(tkn != MSG_TIMEOUT)
       sdPut(&SD1, tkn);    // Not a timeout-> forward to GNSS
   }
-
-
-
-  // myprintf(bsp2, "%.3f %.3f %.3f\n\r", adc_get_temp_internal(), adc_get_temp_heater(), adc_get_current());
 
   /*
 

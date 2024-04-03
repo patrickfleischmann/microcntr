@@ -15,6 +15,7 @@ uint32_t tim1_overflows;
 
 
 //TIM5: capture synchronized counter input signal
+//Generate TRGO on capture event to trigger adc injected conversion
 //adapted from AN4776
 //32bit counter, running at 100MHz
 void TIM5_init(void){
@@ -22,7 +23,8 @@ void TIM5_init(void){
   palSetPadMode(GPIOA, GPIOA_CNT_IN, PAL_MODE_ALTERNATE(2) | PAL_MODE_INPUT); //setting alternate function in board.h didn't work
   SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM5EN); //enable peripheral clock (should be handled by mcuconf in chibi hal system)
 
-  TIM5->CR2 = 0; //defaults
+  TIM5->CR2 = TIM_CR2_MMS_1 | TIM_CR2_MMS_0; //Compare Pulse - The trigger output send a positive pulse when the CC1IF flag is to be
+                                              //set (even if it was already high), as soon as a capture or a compare match occurred
   TIM5->SMCR = 0; // Reset the SMCR register
   TIM5->ARR = 0xFFFFFFFF; //auto reload (period) set to max
   TIM5->PSC = 0; //prescaler 1
@@ -70,9 +72,7 @@ void TIM1_init(void){
 //interrupt vector names defined in os/hal/ports/STM32/STM32F4xx/stm32_isr.h
 //priorities?
 //use update handler and also check capture flag
-CH_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){
-  CH_IRQ_PROLOGUE();
-
+CH_FAST_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){ //no chibios calls allowed in fast isr
   uint32_t sr = TIM1->SR;
   TIM1->SR = 0; //clear all
   uint16_t ccr = TIM1->CCR4;
@@ -81,8 +81,6 @@ CH_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){
     timepulse_capt_curr = ((uint64_t)ccr << 16) + ((uint64_t)tim1_overflows << 32);
   }
   tim1_overflows++;
-
-  CH_IRQ_EPILOGUE();
 }
 
 

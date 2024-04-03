@@ -20,6 +20,7 @@
 #include "display_u8g2.h"
 #include "ADF4156.h"
 #include "gnss.h"
+#include "adc.h"
 
 //extern BaseSequentialStream* bsp2;
 int myprintf(const char *fmt, ...);

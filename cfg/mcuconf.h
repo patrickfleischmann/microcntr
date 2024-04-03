@@ -133,11 +133,12 @@
 
 /*
  * ADC driver system settings.
+ *  APB2 = 100M / ADCPRE_DIV4 -> ADCCLK = 25 MHz
  */
 #define STM32_ADC_ADCPRE                    ADC_CCR_ADCPRE_DIV4
 #define STM32_ADC_USE_ADC1                  TRUE
 #define STM32_ADC_ADC1_DMA_STREAM           STM32_DMA_STREAM_ID(2, 4)
-#define STM32_ADC_ADC1_DMA_PRIORITY         2
+#define STM32_ADC_ADC1_DMA_PRIORITY         3
 #define STM32_ADC_IRQ_PRIORITY              6
 #define STM32_ADC_ADC1_DMA_IRQ_PRIORITY     6
 
@@ -174,9 +175,9 @@
 #define STM32_I2C_I2C1_IRQ_PRIORITY         5
 #define STM32_I2C_I2C2_IRQ_PRIORITY         5
 #define STM32_I2C_I2C4_IRQ_PRIORITY         5
-#define STM32_I2C_I2C1_DMA_PRIORITY         3
-#define STM32_I2C_I2C2_DMA_PRIORITY         3
-#define STM32_I2C_I2C4_DMA_PRIORITY         3
+#define STM32_I2C_I2C1_DMA_PRIORITY         2
+#define STM32_I2C_I2C2_DMA_PRIORITY         2
+#define STM32_I2C_I2C4_DMA_PRIORITY         2
 #define STM32_I2C_DMA_ERROR_HOOK(i2cp)      osalSysHalt("DMA failure")
 
 /*
