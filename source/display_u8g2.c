@@ -1,5 +1,11 @@
+//https://github.com/olikraus/u8g2
+//bitmap to array: https://javl.github.io/image2cpp/
+
+
+#include <display_bitmaps.h>
 #include "main.h"
 #include "display_u8g2.h"
+
 
 #define X_MAX 127
 #define Y_MAX 63
@@ -222,6 +228,19 @@ int display_init (void){
 
   u8g2_SendBuffer(u8g2);
 
+  u8g2_DrawXBMP(u8g2, 0, 0, 128, 64, windows_logo);
+  u8g2_SendBuffer(u8g2);
+  chThdSleepMilliseconds(600);
+
+  u8g2_DrawXBMP(u8g2, 21, 56, 87, 8, bitmap_loading_bar_2_87x8);
+  u8g2_SendBuffer(u8g2);
+  chThdSleepMilliseconds(800);
+
+  u8g2_DrawXBMP(u8g2, 21, 56, 87, 8, bitmap_loading_bar_3_87x8);
+  u8g2_SendBuffer(u8g2);
+
+
+
 
 //  char buf[12];
 //  for(int i = 0; i<20; ++i){
@@ -254,11 +273,7 @@ int display_init (void){
 
 void ThdDispFunc(void) {
   myprintf("ThdDisp\n");
-
-  int temp = display_init();
-  myprintf("display initialized (move to separate disp thread) \n");
-  myprintf("I2C_addr = %d\n", temp);
-  myprintf("I2C_addr = 0x%x\n", temp);
+  myprintf("display initialized. I2C_addr = %d\n", display_init());
   while(true){
     chThdSleepMilliseconds(100);
   }

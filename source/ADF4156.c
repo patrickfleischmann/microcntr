@@ -56,7 +56,7 @@ void adf_write_reg(uint32_t data){
   }
   spiUnselect(&SPID2);            // Slave Select deassertion.
   */
-
+#warning using bitbang SPI
   palClearPad(GPIOB, GPIOB_ADF_DATA);
   palClearPad(GPIOB, GPIOB_ADF_CLK);
   //myprintf("Bitbang adf_write_reg: 0x%08X\n", data);
@@ -136,6 +136,9 @@ void adf_write_reg(uint32_t data){
 
 void adf_config(uint32_t div_n, uint32_t div_r, uint8_t testmode) {
   uint32_t ADF4156_reg[5] = {0,1,2,3,4}; //reg addresses
+
+  if(div_n > 8190) div_n = 8190;
+  if(div_r > 64) div_r = 64;
 
   uint32_t n = (div_n/2) & 0x0FFF;
   if(n < 23){

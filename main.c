@@ -142,44 +142,6 @@ static THD_FUNCTION(ThdSerial, arg) {
   }*/
 }
 
-
-/*
- * Green LED blinker thread, times are in milliseconds.
- */
-static THD_WORKING_AREA(waThdBlinker, 128);
-static THD_FUNCTION(ThdBlinker, arg) {
-  (void)arg;
-  chRegSetThreadName("blinker");
-  chThdSleepMilliseconds(100);
-  myprintf("ThdBlinker\n");
-
-  for(float i=150; i>30; i=i*0.9){
-    palSetPad(GPIOB, GPIOB_LED1);
-    palClearPad(GPIOC, GPIOC_LED2);
-    chThdSleepMilliseconds(i);
-    palClearPad(GPIOB, GPIOB_LED1);
-    palSetPad(GPIOC, GPIOC_LED2);
-    chThdSleepMilliseconds(i);
-  }
-  for(float i=30; i<150; i=i*1.1){
-    palSetPad(GPIOB, GPIOB_LED1);
-    palClearPad(GPIOC, GPIOC_LED2);
-    chThdSleepMilliseconds(i);
-    palClearPad(GPIOB, GPIOB_LED1);
-    palSetPad(GPIOC, GPIOC_LED2);
-    chThdSleepMilliseconds(i);
-  }
-
-  while (true) {
-    palSetPad(GPIOB, GPIOB_LED1);
-    palClearPad(GPIOC, GPIOC_LED2);
-    chThdSleepMilliseconds(1000);
-    palClearPad(GPIOB, GPIOC_LED2);
-    palSetPad(GPIOC, GPIOB_LED1);
-    chThdSleepMilliseconds(1000);
-  }
-}
-
 /*
  * GNSS (UART1) receive and forward
  */
@@ -263,28 +225,40 @@ int main(void) {
 
   heater_init();
 
-  /*
-   * Create threads
-   */
-
-  chThdCreateStatic(waThdBlinker, sizeof(waThdBlinker), NORMALPRIO, ThdBlinker, NULL);
+  //Create threads
   chThdCreateStatic(waThdSerial, sizeof(waThdSerial), NORMALPRIO, ThdSerial, NULL);
   chThdCreateStatic(waThdBeeper, sizeof(waThdBeeper), NORMALPRIO, ThdBeeper, NULL);
   chThdCreateStatic(waThdGNSS, sizeof(waThdGNSS), NORMALPRIO, ThdGNSS, NULL);
   chThdCreateStatic(waThdCntr, sizeof(waThdCntr), NORMALPRIO, ThdCntr, NULL);
-  //chThdCreateStatic(waThdDisp, sizeof(waThdDisp), NORMALPRIO, ThdDisp, NULL);
+  chThdCreateStatic(waThdDisp, sizeof(waThdDisp), NORMALPRIO, ThdDisp, NULL);
 
-
-
-  /*
-   * Normal main() thread activity, in this demo it does nothing except
-   * sleeping in a loop and check the button state.
-   */
   myprintf("Thdmain\n");
 
   while (true) {
-    //get_temp_internal();
+    for(float i=150; i>30; i=i*0.9){ //Blinker
+      palSetPad(GPIOB, GPIOB_LED1);
+      palClearPad(GPIOC, GPIOC_LED2);
+      chThdSleepMilliseconds(i);
+      palClearPad(GPIOB, GPIOB_LED1);
+      palSetPad(GPIOC, GPIOC_LED2);
+      chThdSleepMilliseconds(i);
+    }
+    for(float i=30; i<150; i=i*1.1){
+      palSetPad(GPIOB, GPIOB_LED1);
+      palClearPad(GPIOC, GPIOC_LED2);
+      chThdSleepMilliseconds(i);
+      palClearPad(GPIOB, GPIOB_LED1);
+      palSetPad(GPIOC, GPIOC_LED2);
+      chThdSleepMilliseconds(i);
+    }
 
-    chThdSleepMilliseconds(500);
+    while (true) {
+      palSetPad(GPIOB, GPIOB_LED1);
+      palClearPad(GPIOC, GPIOC_LED2);
+      chThdSleepMilliseconds(1000);
+      palClearPad(GPIOB, GPIOC_LED2);
+      palSetPad(GPIOC, GPIOB_LED1);
+      chThdSleepMilliseconds(1000);
+    }
   }
 }

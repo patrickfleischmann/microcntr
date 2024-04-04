@@ -23,9 +23,11 @@ extern uint32_t tim9_updates;
 extern uint32_t adc_TAC_end_cb_counter;
 extern uint32_t adc_TAC_error_cb_counter;
 
+uint32_t div_autoset(void);
+
 uint32_t tim5_ccr1;
 uint32_t adc_jdr1;
-bool adc_isr_flag;
+uint32_t adc_isr_count;
 
 void cntr_cal_sel_TIMEPULSE_HSI(void){
   palClearPad(GPIOB, GPIOB_CAL_SOUR_SEL);
@@ -149,6 +151,10 @@ void ThdCntrFunc(void) {
   //adf_config_div_r(50); //seems to work
   adf_config_div_n(1000); //
 
+  while(1){
+    printf("div_autoset: %u\n", div_autoset());
+  }
+
   while(true){
 
 
@@ -163,14 +169,13 @@ void ThdCntrFunc(void) {
 
 
 
-    if(adc_isr_flag){
+    if(adc_isr_count){
       myprintf("ADC1 JDR1: %04d\n",adc_jdr1);
       a = b;
       b = tim5_ccr1;
       myprintf("a: %10u, b: %10u, b-a: %10u\n", a, b, b-a);
-      adc_isr_flag = 0;
+      adc_isr_count = 0;
     }
-
 
     //myprintf("adc_TAC_end_cb_counter: %d, adc_TAC_error_cb_counter: %d\n", adc_TAC_end_cb_counter, adc_TAC_error_cb_counter);
 
@@ -195,11 +200,51 @@ void ThdCntrFunc(void) {
 CH_FAST_IRQ_HANDLER(Vector88) { //ADC, no chibios allowed in fast interrupt
 //  uint32_t sr = ADC1->SR; //todo can overrun be checked?
   ADC1->SR = 0; //clear all
-  if(!adc_isr_flag){
+  if(adc_isr_count == 0){
     tim5_ccr1 = TIM5->CCR1;
     adc_jdr1 = ADC1->JDR1;
-    adc_isr_flag = 1;
   }
+  adc_isr_count++;
+}
+
+
+
+//div = 2,4,..,8190
+//r = 1,2,..,32 (*2 = 2,4,..64)
+//n = 23,24,..,4095 (*2 = 46,48,..,8190)
+//muxout/2 is used except when r = 1
+//if r = 0: n divider is used (should be usable above 10 MHz input)
+//testmode = 1: muxout high, testmode = 2: muxout low
+//void adf_config_div_n(uint32_t div_n) { adf_config(div_n, 0, 0);}
+//void adf_config_div_r(uint32_t div_r) { adf_config(0, div_r, 0);}
+
+uint32_t div_autoset(void){
+  uint32_t div = 8190;
+  uint32_t count = 0;
+
+  //todo real binary search
+
+  //high to low n divider search
+  while(div > 0){
+    adf_config_div_n(div);
+    adc_isr_count = 0;
+    chThdSleepMilliseconds(1);
+    count = adc_isr_count;
+    myprintf("div_autoset div: %5u, count: %7u\n", div, count);
+    if(count < 1000){
+      div /= 2;
+    } else {
+      break;
+    }
+  }
+
+  adc_isr_count = 0;
+  chThdSleepMilliseconds(1);
+  count = adc_isr_count;
+  myprintf("div_autoset div: %5u, count: %7u\n", div, count);
+
+
+  return div;
 }
 
 
