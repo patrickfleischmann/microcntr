@@ -7,12 +7,11 @@
 
 #include "main.h"
 
-
-
-extern int64_t timepulse_capt_prev;
-extern int64_t timepulse_capt_curr;
+int64_t timepulse_capt_prev;
+int64_t timepulse_capt_curr;
+int64_t timepulse_period;
 uint32_t tim1_overflows;
-
+uint32_t timepulses;
 
 //TIM5: capture synchronized counter input signal
 //Generate TRGO on capture event to trigger adc injected conversion
@@ -64,6 +63,7 @@ void TIM1_init(void){
   TIM1->SR = ~TIM_SR_CC4IF; //Clear event flag
 
   tim1_overflows = 0;
+  timepulses = 0;
 
   NVIC_SetPriority(TIM1_UP_IRQn, 7);
   NVIC_EnableIRQ(TIM1_UP_IRQn);
@@ -77,10 +77,24 @@ CH_FAST_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){ //no chibios calls allowed in 
   TIM1->SR = 0; //clear all
   uint16_t ccr = TIM1->CCR4;
   if(sr & TIM_SR_CC4IF){ //capture event
+    timepulses++;
     timepulse_capt_prev = timepulse_capt_curr;
     timepulse_capt_curr = ((uint64_t)ccr << 16) + ((uint64_t)tim1_overflows << 32);
   }
   tim1_overflows++;
+}
+
+uint32_t timer_getTimepulses(void){
+  return timepulses;
+}
+
+uint64_t timer_getTimepulsePeriod(void){
+  uint32_t timepulses_old = timepulses;
+  uint64_t temp = timepulse_capt_curr - timepulse_capt_prev;
+  if(timepulses_old == timepulses){ //no update happened during calc -> result ok
+    timepulse_period = temp;
+  }
+  return timepulse_period;
 }
 
 

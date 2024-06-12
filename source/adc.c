@@ -72,189 +72,18 @@ Disabled Chibios ADC driver (HAL_USE_ADC   FALSE)
 */
 #include "main.h"
 
+void adcSTM32EnableTSVREFE(void);
+
 float lmt85_volt_to_temp_deg_c(float v);
 
 uint32_t adc_TAC_end_cb_counter;
 uint32_t adc_TAC_error_cb_counter;
 
 
-#define TEMPSENSOR_CAL1_ADDR     ((uint16_t*) (0x1FFF7A2C)) //30°
-#define TEMPSENSOR_CAL2_ADDR     ((uint16_t*) (0x1FFF7A2E)) //110°
-
-
-/*
- * ADC conversion group.
- * Mode:        Linear buffer, 10 samples of 1 channel, SW triggered.
- * Channels:    temp sensor.
- */
-
-/*
-#define ADC_TEMP_INT_NUM_CH   1
-#define ADC_TEMP_INT_N 10
-static adcsample_t adc_buf_temp_int[ADC_TEMP_INT_NUM_CH * ADC_TEMP_INT_N];
-
-static const ADCConversionGroup adc_conv_grp_temp_int = {
-  .circular =       FALSE,
-  .num_channels =   ADC_TEMP_INT_NUM_CH,
-  .end_cb =         NULL,
-  .error_cb =       NULL,
-  .cr1 =            0,
-  .cr2 =            ADC_CR2_SWSTART,
-  .smpr1 =          ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144),
-  .smpr2 =          0,
-  .htr =            0,
-  .ltr =            0,
-  .sqr1 =           ADC_SQR1_NUM_CH(ADC_TEMP_INT_NUM_CH),
-  .sqr2 =           0,
-  .sqr3 =           ADC_SQR3_SQ1_N (ADC_CHANNEL_SENSOR)
-};
-
-*/
-float adc_get_temp_internal(void){
-#warning todo rewrite without chibi ADC
-  return 0;
-/*
-  adcStart(&ADCD1, NULL);
-  adcSTM32EnableTSVREFE();
-  adcConvert(&ADCD1, &adc_conv_grp_temp_int, adc_buf_temp_int, ADC_TEMP_INT_N); //dumy for config
-  chThdSleepMilliseconds(1); //wait for temp sens startup
-
-  adcConvert(&ADCD1, &adc_conv_grp_temp_int, adc_buf_temp_int, ADC_TEMP_INT_N);
-  adcSTM32DisableTSVREFE();
-  adcStop(&ADCD1);
-
-  uint32_t mean = 0;
-  for(uint16_t n=0; n<ADC_TEMP_INT_N; ++n){
-    //chprintf(bsp2, "sample %d = %d\n", i, adc_buf_temp_int[i]);
-    mean += adc_buf_temp_int[n];
-  }
-
-  float t = (float)mean/(float)ADC_TEMP_INT_N;
-  //chprintf(bsp2,"mean = %f\n", t);
-
-  float cal30 = *TEMPSENSOR_CAL1_ADDR;
-  float cal110 = *TEMPSENSOR_CAL2_ADDR;
-  //chprintf(bsp2,"cal30 = %f, cal110 = %f\n", cal30, cal110);
-
-
-  float slope = (cal110-cal30)/80.0;
-  //chprintf(bsp2,"slope = %f [counts], %f [mv/deg]\n", slope, slope*3300/ADC_BINS);
-
-  float temp = (t - cal30) / slope + 30.0;
-  //chprintf(bsp2,"temp = %f\n", temp);
-
-  //TODO calibrate ADC full scale with vrefint
-  //VREFIN_CAL, Raw data acquired at temperature of, 30 °C VDDA = 3.3 V, 0x1FFF 7A2A - 0x1FFF 7A2B
-  return temp;
-  */
-}
-
-/*
- * ADC conversion group.
- * Mode:        Linear buffer, 10 samples of 1 channel, SW triggered.
- * Channels:    temp sensor.
- *
-
-#define ADC_TEMP_HEAT_NUM_CH   1
-#define ADC_TEMP_HEAT_N 100
-static adcsample_t adc_buf_temp_heat[ADC_TEMP_HEAT_NUM_CH * ADC_TEMP_HEAT_N];
-static const ADCConversionGroup adc_conv_grp_temp_heat =
-{
- .circular =       FALSE,
- .num_channels =   ADC_TEMP_HEAT_NUM_CH,
- .end_cb =         NULL,
- .error_cb =       NULL,
- .cr1 =            0,
- .cr2 =            ADC_CR2_SWSTART,
- .smpr1 =          ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144),
- .smpr2 =          0,
- .htr =            0,
- .ltr =            0,
- .sqr1 =           ADC_SQR1_NUM_CH(ADC_TEMP_HEAT_NUM_CH),
- .sqr2 =           0,
- .sqr3 =           ADC_SQR3_SQ1_N (ADC_CHANNEL_IN12)
-};
-*/
-
-float adc_get_temp_heater(void){
-#warning todo rewrite without chibi ADC
-  return 0;
-  /*
-  adcStart(&ADCD1, NULL);
-  adcConvert(&ADCD1, &adc_conv_grp_temp_heat, adc_buf_temp_heat, ADC_TEMP_HEAT_N); //dumy for config
-
-  adcConvert(&ADCD1, &adc_conv_grp_temp_heat, adc_buf_temp_heat, ADC_TEMP_HEAT_N);
-  adcStop(&ADCD1);
-
-  uint32_t mean = 0;
-  for(uint16_t n=0; n<ADC_TEMP_HEAT_N; ++n){
-    mean += adc_buf_temp_heat[n];
-  }
-  float v = (((float)mean) * ADC_V_MAX / ADC_BINS) / ADC_TEMP_HEAT_N;
-
-  //TODO calibrate ADC full scale with vrefint
-  //VREFIN_CAL, Raw data acquired at temperature of, 30 °C VDDA = 3.3 V, 0x1FFF 7A2A - 0x1FFF 7A2B
-  return lmt85_volt_to_temp_deg_c(v);
-  */
-}
-
-/*
- * ADC conversion group.
- * Mode:        Linear buffer, 10 samples of 1 channel, SW triggered.
- * Channels:    temp sensor.
- *
-#define ADC_CURRENT_NUM_CH   1
-#define ADC_CURRENT_N 10
-static adcsample_t adc_buf_current[ADC_CURRENT_NUM_CH * ADC_CURRENT_N];
-
-static const ADCConversionGroup adc_conv_grp_current =
-{
- .circular =       FALSE,
- .num_channels =   ADC_CURRENT_NUM_CH,
- .end_cb =          NULL,
- .error_cb =       NULL,
- .cr1 =            0,
- .cr2 =            ADC_CR2_SWSTART,
- .smpr1 =          ADC_SMPR1_SMP_SENSOR(ADC_SAMPLE_144),
- .smpr2 =          0,
- .htr =            0,
- .ltr =            0,
- .sqr1 =           ADC_SQR1_NUM_CH(ADC_CURRENT_NUM_CH),
- .sqr2 =           0,
- .sqr3 =           ADC_SQR3_SQ1_N (ADC_CHANNEL_IN7)
-};
-*/
-float adc_get_current(void){
-#warning todo rewrite without chibi ADC
-  return 0;
-  /*
-  adcStart(&ADCD1, NULL);
-  adcConvert(&ADCD1, &adc_conv_grp_current, adc_buf_current, ADC_CURRENT_N); //dumy for config
-
-  adcConvert(&ADCD1, &adc_conv_grp_current, adc_buf_current, ADC_CURRENT_N);
-  adcStop(&ADCD1);
-
-  uint32_t mean = 0;
-  for(uint16_t n=0; n<ADC_CURRENT_N; ++n){
-    mean += adc_buf_current[n];
-  }
-
-  float v = (float)mean/(float)ADC_CURRENT_N;
-  v = v*ADC_V_MAX/ADC_BINS;
-
-  //TODO calibrate ADC full scale with vrefint
-  //VREFIN_CAL, Raw data acquired at temperature of, 30 °C VDDA = 3.3 V, 0x1FFF 7A2A - 0x1FFF 7A2B
-  return v;
-  */
-}
-
-float lmt85_volt_to_temp_deg_c(float v){
-  return (v-1.567)*-120.48; //LMT85: 0°C 1.567V, -8.3mV/deg 0-100°C. div2 on board
-}
-
-
 //ADC_CR2_SWSTART causes immediate start of conversion?! but then at least error callback is not called
-
+//Sample TAC_out on CH10: T_sample 15cycles
+//Sample T_heater on CH12
+//maximum trigger rate: ca. 2us
 void adc_init_TAC(){
 
   adc_TAC_end_cb_counter = 0;
@@ -268,9 +97,10 @@ void adc_init_TAC(){
 
 
   //Defaults: Single conversion, 12bit, right aligned
-  ADC1->SMPR1 = (1 << ADC_SMPR1_SMP10_Pos); //010: 15 cycles = 600ns
-  ADC1->JSQR = 10 << ADC_JSQR_JSQ4_Pos; //single injected conversion, CH10, result in JDR1!
-  ADC1->CR1 = ADC_CR1_JEOCIE; //JEOC interrupt enabled (injected end of conversion)
+  ADC1->SMPR1 = (1 << ADC_SMPR1_SMP10_Pos); //TAC_out: 15 cycles = 600ns
+  ADC1->SMPR1 |= (2 << ADC_SMPR1_SMP12_Pos); //T_heater: 28 cycles = 1100ns
+  ADC1->JSQR = (1 << ADC_JSQR_JL_Pos)|(10 << ADC_JSQR_JSQ3_Pos)|(12 << ADC_JSQR_JSQ4_Pos); //2 injected conversions: CH10(result in JDR1), CH12
+  ADC1->CR1 = ADC_CR1_SCAN | ADC_CR1_JEOCIE; //Scan mode, JEOC interrupt enabled (injected end of conversion group)
   ADC1->CR2 = ADC_CR2_ADON | ADC_CR2_JEXTEN_0 | (11 << ADC_CR2_JEXTSEL_Pos); //Enable ADC (needs 3us after this for stable conversions)
                                                //rising edge trigger, Timer 5 TRGO event
 
@@ -278,6 +108,46 @@ void adc_init_TAC(){
   NVIC_EnableIRQ(ADC_IRQn);
 }
 
+
+//Sample v_current on CH7
+//Sample T_heater on CH12
+//Sample T_int on CH18
+//(start conversion in other function using ADC_CR2_SWSTART)
+void adc_init_temp_current(){
+  SET_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC1EN); //enable peripheral clock
+  SET_BIT(RCC->APB2RSTR, RCC_APB2RSTR_ADCRST); //assert reset
+  CLEAR_BIT(RCC->APB2RSTR, RCC_APB2RSTR_ADCRST); //deassert reset -> registers should be at power up defaults
+
+  //Defaults: Single conversion, 12bit, right aligned
+  ADC1->SMPR2 |= (7 << ADC_SMPR2_SMP7_Pos); //v_current: 480 cycles = 20us
+  ADC1->SMPR1 |= (7 << ADC_SMPR1_SMP12_Pos); //T_heater: 480 cycles = 20us
+  ADC1->SMPR1 |= (7 << ADC_SMPR1_SMP18_Pos); //T_int:    480 cycles = 20us
+  //3 injected conversions: CH7 in JDR1, CH12 in JDR2, CH18 in JDR3
+  ADC1->JSQR = (2 << ADC_JSQR_JL_Pos)|(7 << ADC_JSQR_JSQ2_Pos)|(12 << ADC_JSQR_JSQ3_Pos)|(18 << ADC_JSQR_JSQ4_Pos);
+  ADC1->CR1 = ADC_CR1_SCAN; //Scan mode, no JEOC interrupt
+  ADC1->CR2 = ADC_CR2_ADON;   //Enable ADC(needs 3us after this for stable conversions)
+
+  ADC->CCR = ADC_CCR_TSVREFE; //enable conversion of internal sensors (needs 10us after this)
+}
+
+void adc_get_temp_current(uint32_t* jdr3, uint32_t* jdr2, uint32_t* jdr1, uint32_t n_avg){
+  *jdr3 = 0;
+  *jdr2 = 0;
+  *jdr1 = 0;
+
+  for(uint32_t i = 0; i < n_avg; ++i){
+    CLEAR_BIT(ADC1->SR, ADC_SR_JEOC);
+    ADC1->CR2 |= ADC_CR2_JSWSTART; //Start injected group
+    while(!(ADC1->SR & ADC_SR_JEOC)){} //wait for end of conversion
+    *jdr3 += ADC1->JDR3;
+    *jdr2 += ADC1->JDR2;
+    *jdr1 += ADC1->JDR1;
+  }
+
+  *jdr3 /= n_avg;
+  *jdr2 /= n_avg;
+  *jdr1 /= n_avg;
+}
 
 
 

@@ -65,24 +65,24 @@ static mutex_t mutex_bsp2;
 static uint32_t beep_ms = 0; //startup beep
 
 int myprintf(const char *fmt, ...) {
-//  va_list ap;
-//  int formatted_bytes;
-//  chMtxLock(&mutex_bsp2);
-//  va_start(ap, fmt);
-//  formatted_bytes = chvprintf(bsp2, fmt, ap);
-//  va_end(ap);
-//  chMtxUnlock(&mutex_bsp2);
-//
-//  return formatted_bytes;
+  //  va_list ap;
+  //  int formatted_bytes;
+  //  chMtxLock(&mutex_bsp2);
+  //  va_start(ap, fmt);
+  //  formatted_bytes = chvprintf(bsp2, fmt, ap);
+  //  va_end(ap);
+  //  chMtxUnlock(&mutex_bsp2);
+  //
+  //  return formatted_bytes;
 
-    va_list ap;
-    int formatted_bytes;
-    chMtxLock(&mutex_bsp2);
-    va_start(ap, fmt);
-    formatted_bytes = vprintf(fmt, ap);
-    va_end(ap);
-    chMtxUnlock(&mutex_bsp2);
-    return formatted_bytes;
+  va_list ap;
+  int formatted_bytes;
+  chMtxLock(&mutex_bsp2);
+  va_start(ap, fmt);
+  formatted_bytes = vprintf(fmt, ap);
+  va_end(ap);
+  chMtxUnlock(&mutex_bsp2);
+  return formatted_bytes;
 }
 
 void _putchar(char character){
@@ -108,38 +108,29 @@ static THD_FUNCTION(ThdSerial, arg) {
   myprintf("ThdSerial\n");
 
   while(true) {
-
-
     // Getting data from Serial Driver with a timeout.
     msg_t tkn = sdGetTimeout(&SD2, TIME_MS2I(100));
     // Checking if a timeout has occurred.
-    if(tkn != MSG_TIMEOUT)
-      sdPut(&SD1, tkn);    // Not a timeout-> forward to GNSS
-  }
-
-  /*
-
-   // Getting data from Serial Driver with a timeout.
-    msg_t tkn = sdGetTimeout(&SD2, TIME_MS2I(1000));
-    // Checking if a timeout has occurred.
-    if(tkn != MSG_TIMEOUT) {
-      // Not a timeout. Echoing the character to improve user experience.
-      sdPut(&SD2, tkn);
-      //sdWrite(&SD2, (uint8_t*)"\r\n", 2U);
-      if(tkn == '0'){
-        myprintf("  Disable heater\n");
-        heater_disable();
-      } else if(tkn == '1'){
-        myprintf("Enable heater..\n");
-        heater_setTempDegC(50.0);
-      } else if(tkn == '2'){
-        myprintf("Beep\n");
-        beep_ms = 10;
+    if(tkn != MSG_TIMEOUT){
+      if(gnss_forwardingEnabled()){
+        sdPut(&SD1, tkn);    // Not a timeout-> forward to GNSS
+      } else {
+        //Echoing the character to improve user experience.
+        sdPut(&SD2, tkn);
+        //sdWrite(&SD2, (uint8_t*)"\r\n", 2U);
+        if(tkn == '0'){
+          myprintf("  Disable heater\n");
+          heater_disable();
+        } else if(tkn == '1'){
+          myprintf("Enable heater..\n");
+          heater_setTempDegC(50.0);
+        } else if(tkn == '2'){
+          myprintf("Beep\n");
+          beep_ms = 10;
+        }
       }
     }
-    // No sleep needed here. This thread releases the CPU onsdGetTimeout.
-
-  }*/
+  }
 }
 
 /*
@@ -148,25 +139,7 @@ static THD_FUNCTION(ThdSerial, arg) {
 static THD_WORKING_AREA(waThdGNSS, 256);
 static THD_FUNCTION(ThdGNSS, arg) {
   (void)arg;
-  chRegSetThreadName("GNSS");
-  myprintf("ThdGNSS\n");
-#warning GNSS forwarding disabled
-/*
-  gnssInit();
-
-
-  while(true){
-    // Getting data from Serial Driver with a timeout.
-    msg_t tkn = sdGetTimeout(&SD1, TIME_MS2I(100));
-    // Checking if a timeout has occurred.
-    if(tkn != MSG_TIMEOUT) {
-      // Not a timeout-> forward
-      sdPut(&SD2, tkn);
-    }
-  }
-*/
-
-  chThdSleepMilliseconds(1000); //for debugging when disabled
+  ThdGNssFunc();
 }
 
 /*
@@ -199,7 +172,7 @@ static THD_FUNCTION(ThdCntr, arg) {
   ThdCntrFunc();
 }
 
-static THD_WORKING_AREA(waThdDisp, 256);
+static THD_WORKING_AREA(waThdDisp, 512);
 static THD_FUNCTION(ThdDisp, arg) {
   (void)arg;
   ThdDispFunc();
@@ -256,6 +229,7 @@ int main(void) {
       palSetPad(GPIOB, GPIOB_LED1);
       palClearPad(GPIOC, GPIOC_LED2);
       chThdSleepMilliseconds(1000);
+
       palClearPad(GPIOB, GPIOC_LED2);
       palSetPad(GPIOC, GPIOB_LED1);
       chThdSleepMilliseconds(1000);

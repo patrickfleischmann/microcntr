@@ -67,11 +67,11 @@
 #define GPIOB_SWO                  3U
 #define GPIOB_CAL_SOUR_SEL                 4U
 #define GPIOB_REF_INT_EN           5U
-#define GPIOB_PIN6                 6U
-#define GPIOB_PIN7                 7U
-#define GPIOB_PIN8                 8U
-#define GPIOB_PIN9                 9U
-#define GPIOB_PIN10               10U
+#define GPIOB_BUTTON_A                 6U
+#define GPIOB_BUTTON_B                 7U
+#define GPIOB_BUTTON_C                 8U
+#define GPIOB_DISP_SDA                 9U
+#define GPIOB_DISP_SCL               10U
 #define GPIOB_PIN11               11U
 #define GPIOB_ADF_LE               12U
 #define GPIOB_ADF_CLK               13U
@@ -365,11 +365,11 @@
                                      PIN_MODE_ALTERNATE(GPIOB_SWO) |        \
                                      PIN_MODE_OUTPUT(GPIOB_CAL_SOUR_SEL) |         \
                                      PIN_MODE_OUTPUT(GPIOB_REF_INT_EN) |         \
-                                     PIN_MODE_INPUT(GPIOB_PIN6) |        \
-                                     PIN_MODE_INPUT(GPIOB_PIN7) |           \
-                                     PIN_MODE_INPUT(GPIOB_PIN8) |        \
-                                     PIN_MODE_INPUT(GPIOB_PIN9) |        \
-                                     PIN_MODE_INPUT(GPIOB_PIN10) |         \
+                                     PIN_MODE_INPUT(GPIOB_BUTTON_A) |        \
+                                     PIN_MODE_INPUT(GPIOB_BUTTON_B) |           \
+                                     PIN_MODE_INPUT(GPIOB_BUTTON_C) |        \
+                                     PIN_MODE_INPUT(GPIOB_DISP_SDA) |        \
+                                     PIN_MODE_INPUT(GPIOB_DISP_SCL) |         \
                                      PIN_MODE_INPUT(GPIOB_PIN11) |          \
                                      PIN_MODE_OUTPUT(GPIOB_ADF_LE) |          \
                                      PIN_MODE_OUTPUT(GPIOB_ADF_CLK) |          \
@@ -381,11 +381,11 @@
                                      PIN_OTYPE_PUSHPULL(GPIOB_SWO) |        \
                                      PIN_OTYPE_PUSHPULL(GPIOB_CAL_SOUR_SEL) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOB_REF_INT_EN) |     \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN6) |    \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN7) |       \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN8) |    \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN9) |    \
-                                     PIN_OTYPE_PUSHPULL(GPIOB_PIN10) |     \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_BUTTON_A) |    \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_BUTTON_B) |       \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_BUTTON_C) |    \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_DISP_SDA) |    \
+                                     PIN_OTYPE_PUSHPULL(GPIOB_DISP_SCL) |     \
                                      PIN_OTYPE_PUSHPULL(GPIOB_PIN11) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOB_ADF_LE) |      \
                                      PIN_OTYPE_PUSHPULL(GPIOB_ADF_CLK) |      \
@@ -397,11 +397,11 @@
                                      PIN_OSPEED_LOW(GPIOB_SWO) |           \
                                      PIN_OSPEED_LOW(GPIOB_CAL_SOUR_SEL) |        \
                                      PIN_OSPEED_LOW(GPIOB_REF_INT_EN) |        \
-                                     PIN_OSPEED_LOW(GPIOB_PIN6) |       \
-                                     PIN_OSPEED_LOW(GPIOB_PIN7) |          \
-                                     PIN_OSPEED_LOW(GPIOB_PIN8) |       \
-                                     PIN_OSPEED_LOW(GPIOB_PIN9) |       \
-                                     PIN_OSPEED_LOW(GPIOB_PIN10) |        \
+                                     PIN_OSPEED_LOW(GPIOB_BUTTON_A) |       \
+                                     PIN_OSPEED_LOW(GPIOB_BUTTON_B) |          \
+                                     PIN_OSPEED_LOW(GPIOB_BUTTON_C) |       \
+                                     PIN_OSPEED_LOW(GPIOB_DISP_SDA) |       \
+                                     PIN_OSPEED_LOW(GPIOB_DISP_SCL) |        \
                                      PIN_OSPEED_LOW(GPIOB_PIN11) |         \
                                      PIN_OSPEED_MEDIUM(GPIOB_ADF_LE) |         \
                                      PIN_OSPEED_MEDIUM(GPIOB_ADF_CLK) |         \
@@ -413,11 +413,11 @@
                                      PIN_PUPDR_PULLDOWN(GPIOB_SWO) |          \
                                      PIN_PUPDR_FLOATING(GPIOB_CAL_SOUR_SEL) |       \
                                      PIN_PUPDR_FLOATING(GPIOB_REF_INT_EN) |       \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PIN6) |      \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PIN7) |         \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PIN8) |      \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PIN9) |      \
-                                     PIN_PUPDR_PULLDOWN(GPIOB_PIN10) |       \
+                                     PIN_PUPDR_PULLUP(GPIOB_BUTTON_A) |      \
+                                     PIN_PUPDR_PULLUP(GPIOB_BUTTON_B) |         \
+                                     PIN_PUPDR_PULLUP(GPIOB_BUTTON_C) |      \
+                                     PIN_PUPDR_PULLDOWN(GPIOB_DISP_SDA) |      \
+                                     PIN_PUPDR_PULLDOWN(GPIOB_DISP_SCL) |       \
                                      PIN_PUPDR_PULLDOWN(GPIOB_PIN11) |        \
                                      PIN_PUPDR_FLOATING(GPIOB_ADF_LE) |        \
                                      PIN_PUPDR_FLOATING(GPIOB_ADF_CLK) |        \
@@ -429,11 +429,11 @@
                                      PIN_ODR_LOW(GPIOB_SWO) |              \
                                      PIN_ODR_LOW(GPIOB_CAL_SOUR_SEL) |           \
                                      PIN_ODR_HIGH(GPIOB_REF_INT_EN) |           \
-                                     PIN_ODR_LOW(GPIOB_PIN6) |          \
-                                     PIN_ODR_LOW(GPIOB_PIN7) |             \
-                                     PIN_ODR_LOW(GPIOB_PIN8) |          \
-                                     PIN_ODR_LOW(GPIOB_PIN9) |          \
-                                     PIN_ODR_LOW(GPIOB_PIN10) |           \
+                                     PIN_ODR_LOW(GPIOB_BUTTON_A) |          \
+                                     PIN_ODR_LOW(GPIOB_BUTTON_B) |             \
+                                     PIN_ODR_LOW(GPIOB_BUTTON_C) |          \
+                                     PIN_ODR_LOW(GPIOB_DISP_SDA) |          \
+                                     PIN_ODR_LOW(GPIOB_DISP_SCL) |           \
                                      PIN_ODR_LOW(GPIOB_PIN11) |            \
                                      PIN_ODR_HIGH(GPIOB_ADF_LE) |            \
                                      PIN_ODR_LOW(GPIOB_ADF_CLK) |            \
@@ -445,11 +445,11 @@
                                      PIN_AFIO_AF(GPIOB_SWO, 0U) |           \
                                      PIN_AFIO_AF(GPIOB_CAL_SOUR_SEL, 0U) |        \
                                      PIN_AFIO_AF(GPIOB_REF_INT_EN, 0U) |        \
-                                     PIN_AFIO_AF(GPIOB_PIN6, 0U) |       \
-                                     PIN_AFIO_AF(GPIOB_PIN7, 0U))
-#define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_PIN8, 0U) |       \
-                                     PIN_AFIO_AF(GPIOB_PIN9, 0U) |       \
-                                     PIN_AFIO_AF(GPIOB_PIN10, 0U) |        \
+                                     PIN_AFIO_AF(GPIOB_BUTTON_A, 0U) |       \
+                                     PIN_AFIO_AF(GPIOB_BUTTON_B, 0U))
+#define VAL_GPIOB_AFRH              (PIN_AFIO_AF(GPIOB_BUTTON_C, 0U) |       \
+                                     PIN_AFIO_AF(GPIOB_DISP_SDA, 0U) |       \
+                                     PIN_AFIO_AF(GPIOB_DISP_SCL, 0U) |        \
                                      PIN_AFIO_AF(GPIOB_PIN11, 0U) |         \
                                      PIN_AFIO_AF(GPIOB_ADF_LE, 0U) |         \
                                      PIN_AFIO_AF(GPIOB_ADF_CLK, 0U) |         \

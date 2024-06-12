@@ -56,72 +56,27 @@ void adf_write_reg(uint32_t data){
   }
   spiUnselect(&SPID2);            // Slave Select deassertion.
   */
-#warning using bitbang SPI
+
+  //HW SPI didn't work the first time. using Bitbang SPI
   palClearPad(GPIOB, GPIOB_ADF_DATA);
   palClearPad(GPIOB, GPIOB_ADF_CLK);
-  //myprintf("Bitbang adf_write_reg: 0x%08X\n", data);
+  asm("nop");
+  asm("nop");
   palClearPad(GPIOB, GPIOB_ADF_LE);           // Slave Select assertion.
    for(int i=3; i>=0; --i){
      uint8_t temp = data >> (i * 8);
-     //myprintf("adf_write_ byte: 0x%X\n",temp);
-
      //MSB first
-     if(temp&0x80)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x40)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x20)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x10)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x08)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x04)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x02)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
-
-     if(temp&0x01)  palSetPad(GPIOB, GPIOB_ADF_DATA);
-     else           palClearPad(GPIOB, GPIOB_ADF_DATA);
-     chThdSleepMilliseconds(1);
-     palSetPad(GPIOB, GPIOB_ADF_CLK);
-     chThdSleepMilliseconds(1);
-     palClearPad(GPIOB, GPIOB_ADF_CLK);
+     for(int j=7; j>=0; --j){
+       if(temp & (1 << j))    palSetPad(GPIOB, GPIOB_ADF_DATA);
+       else                   palClearPad(GPIOB, GPIOB_ADF_DATA);
+       palSetPad(GPIOB, GPIOB_ADF_CLK);
+       asm("nop");
+       palClearPad(GPIOB, GPIOB_ADF_CLK);
+       //measured clk freq: ca. 10 MHz
+     }
    }
+   asm("nop");
+   asm("nop");
    palSetPad(GPIOB, GPIOB_ADF_LE);             // Slave Select deassertion.
 }
 

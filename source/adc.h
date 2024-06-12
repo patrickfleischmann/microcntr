@@ -17,5 +17,7 @@ float adc_get_temp_internal(void);
 float adc_get_temp_heater(void);
 float adc_get_current(void);
 void adc_init_TAC(void);
+void adc_init_temp_current(void);
+void adc_get_temp_current(uint32_t* jdr3, uint32_t* jdr2, uint32_t* jdr1, uint32_t n_avg);
 
 #endif /* SOURCE_ADC_H_ */

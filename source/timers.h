@@ -13,5 +13,7 @@
 void TIM5_init(void);
 void TIM1_init(void);
 void TIM9_init(uint16_t delay, uint16_t width);
+uint32_t timer_getTimepulses(void);
+uint64_t timer_getTimepulsePeriod(void);
 
 #endif /* SOURCE_TIMERS_H_ */
