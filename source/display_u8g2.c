@@ -40,11 +40,11 @@ muif_t muif_list[] = {
 fds_t fds_data[] =
     MUI_FORM(1) //Main menu -----------------------
     MUI_STYLE(0)
-    MUI_LABEL(0,10, "Main Menu")
-    MUI_XYAT("JP", 10, 22, 2, "Freq") //jump to form
-    MUI_XYAT("JP", 10, 34, 3, "Temp") //jump to form
-    MUI_XYAT("JP", 10, 46, 4, "ANTON") //jump to form
-    MUI_XYAT("JP", 10, 58, 5, "GNSS") //jump to form
+    MUI_LABEL(0,10, "Main Menu") //in reverse order. cursor position starts at 0
+    MUI_XYAT("JP", 15, 58, 5, "GNSS") //jump to form
+    MUI_XYAT("JP", 17, 46, 4, "ANTON") //jump to form
+    MUI_XYAT("JP", 15, 34, 3, "Temp") //jump to form
+    MUI_XYAT("JP", 15, 22, 2, "Freq") //jump to form
     MUI_FORM(2) //Frequency ---------------------
     MUI_STYLE(0)
     MUI_LABEL(0,10, "Freq")
@@ -102,6 +102,8 @@ int display_init (void){
 
   mui_Init(mui, u8g2, fds_data, muif_list, sizeof(muif_list)/sizeof(muif_t));
   mui_GotoForm(mui,/* form_id= */ 1, /* initial_cursor_position= */ 0);
+
+  buttons_init();
 
   //display_bootScreen(u8g2);
 
@@ -162,14 +164,25 @@ void ThdDispFunc(void) {
       u8g2_SendBuffer(u8g2);
       chThdSleepMilliseconds(100);
 
-      /* handle buttons */
-      if(!palReadPad(GPIOB, GPIOB_BUTTON_A)){
+      // handle buttons
+ /*     if(!palReadPad(GPIOB, GPIOB_BUTTON_A)){
         mui_NextField(mui);
       } else if(!palReadPad(GPIOB, GPIOB_BUTTON_B)){
         mui_PrevField(mui);
       } else if(!palReadPad(GPIOB, GPIOB_BUTTON_C)){
         mui_SendSelect(mui);
       }
+*/
+
+     // if(button_A_pressed()){
+      if(!palReadPad(GPIOB, GPIOB_BUTTON_A)){
+        mui_NextField(mui);
+      } else if(button_B_pressed()){
+        mui_PrevField(mui);
+      } else if(button_C_pressed()){
+        mui_SendSelect(mui);
+      }
+
 
     }
   }
@@ -195,10 +208,8 @@ void form_freq(int doInit){
 }
 
 void form_anton(int doInit){
-  static uint32_t n;
-  if(doInit){
-    n = 0;
-  }
+  (void)doInit;
+  static uint32_t n = 2356478;
 
   u8g2_SetFont(u8g2, u8g2_font_helvB10_tr);
   snprintf(tempstr, sizeof(tempstr), "%5.0d", n++);

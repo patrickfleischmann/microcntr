@@ -10,6 +10,7 @@
 int64_t timepulse_capt_prev;
 int64_t timepulse_capt_curr;
 int64_t timepulse_period;
+int64_t timepulse_period_avg8;
 uint32_t tim1_overflows;
 uint32_t timepulses;
 
@@ -73,6 +74,8 @@ void TIM1_init(void){
 //priorities?
 //use update handler and also check capture flag
 CH_FAST_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){ //no chibios calls allowed in fast isr
+  static int64_t avg8;
+
   uint32_t sr = TIM1->SR;
   TIM1->SR = 0; //clear all
   uint16_t ccr = TIM1->CCR4;
@@ -80,6 +83,12 @@ CH_FAST_IRQ_HANDLER(STM32_TIM1_UP_TIM10_HANDLER){ //no chibios calls allowed in 
     timepulses++;
     timepulse_capt_prev = timepulse_capt_curr;
     timepulse_capt_curr = ((uint64_t)ccr << 16) + ((uint64_t)tim1_overflows << 32);
+    timepulse_period = timepulse_capt_curr - timepulse_capt_prev;
+    avg8 += timepulse_period;
+    if((timepulses % 8) == 0){
+      timepulse_period_avg8 = avg8 / 8;
+      avg8 = 0;
+    }
   }
   tim1_overflows++;
 }

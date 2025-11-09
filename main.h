@@ -8,6 +8,8 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
+#include <stdint.h>
+
 #include <display_utils.h>
 #include <printf.h>
 #include <thd_cntr.h>
@@ -23,11 +25,12 @@
 #include "gnss.h"
 #include "adc.h"
 #include "heater.h"
+#include "buttons.h"
 
 //extern BaseSequentialStream* bsp2;
 int myprintf(const char *fmt, ...);
 
-#define T_SETPONT 50  //Default heater temperature (50 seems to work)
+#define T_SETPONT 55  //Default heater temperature (55 seems to be optimal for crystal)
 
 #define TIME_1S (100000000LL << 16)
 #define TIME_RES_F ((float)(0.152587890625e-12))
